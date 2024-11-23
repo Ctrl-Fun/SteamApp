@@ -1,4 +1,6 @@
+import os
 import requests
+import utils
 from errors import error as error
 
 # Games list
@@ -30,3 +32,29 @@ def GetApiList(basePath: str, token: str = ""):
         error("Error in request")
         return
     return data.json()
+
+# API List
+def GetApiEndpoints():
+    token = os.environ["TOKEN"]
+    base_path = os.environ["BASE_PATH"]
+    url = f"{base_path}/ISteamWebAPIUtil/GetSupportedAPIList/v0001/?key={token}"
+    response = requests.get(url)
+
+    if(not response.ok):
+        error("Error loading endpoints")
+        return
+    
+    data = response.json()
+    interfaces = data['apilist']['interfaces']
+    endpoints = {}
+
+    for interface in interfaces:
+        intName = interface['name']
+        for method in interface['methods']:
+            methodName = method['name']
+            version = method['version']
+            # Construir la ruta del endpoint
+            endpoint = f"https://api.steampowered.com/{intName}/{methodName}/v{version}/"
+            endpoints[methodName] = endpoint
+
+    utils.saveJSON(endpoints, "endpoints.json")

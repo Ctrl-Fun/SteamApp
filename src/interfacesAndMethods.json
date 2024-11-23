@@ -186,6 +186,10 @@
         "IEconItems_583950": [
             "GetEquippedPlayerItems"
         ],
+        "IEconItems_620": [
+            "GetPlayerItems",
+            "GetSchema"
+        ],
         "IEconItems_730": [
             "GetPlayerItems",
             "GetSchema",
@@ -226,6 +230,10 @@
             "GetGoldenWrenches"
         ],
         "ITFPromos_440": [
+            "GetItemID",
+            "GrantItem"
+        ],
+        "ITFPromos_620": [
             "GetItemID",
             "GrantItem"
         ],

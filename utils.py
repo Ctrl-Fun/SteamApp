@@ -4,7 +4,7 @@ def saveJSON(data: dict, name: str = "data.json"):
     file_path = f"./src/{name}"
 
     with open(file_path, "w") as json_file:
-        json.dump(data, json_file, indent=4)  # indent=4 para una salida más legible
+        json.dump(data, json_file, indent=4)
 
 
 def ApiMethodsList(publicFilePath: str, privateFilePath: str):
@@ -18,8 +18,6 @@ def ApiMethodsList(publicFilePath: str, privateFilePath: str):
 
     publicData = publicData["apilist"]["interfaces"]
     privateData = privateData["apilist"]["interfaces"]
-
-    # print(privateData)
 
     data = dict(
         public = dict(),
@@ -45,9 +43,6 @@ def ApiMethodsList(publicFilePath: str, privateFilePath: str):
             if methName not in publicMethods:
                 methodArr.append(methName)
 
-        # for method in interface["methods"]:
-        #     methName = method["name"]
-        #     methodArr.append(methName)
         if(methodArr):
             data["private"][intName] = methodArr
 
