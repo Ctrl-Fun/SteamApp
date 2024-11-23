@@ -3,24 +3,6 @@ import requests
 import utils
 from errors import error as error
 
-# Games list
-# def GetGamesList():
-
-# Game news
-def GetNewsForApp(basePath: str, appId: str, count:str = "3", maxLength:str = "300", format:str = "json", displayNews:bool = True):
-    data = requests.get(f"{basePath}/ISteamNews/GetNewsForApp/v0002/?appid={appId}&count={count}&maxlength={maxLength}&format={format}")
-    if(not data.ok):
-        error("Error in request")
-        return
-    
-    appnews = data.json()["appnews"]
-    newsitems = appnews["newsitems"]
-    if(displayNews):
-        print("\033[32mLas noticias del juego son:\033[0m")
-        for new in newsitems:
-            print(new["title"])
-    return appnews
-
 # API List
 def GetApiList(basePath: str, token: str = ""):
     key =""
@@ -58,3 +40,23 @@ def GetApiEndpoints():
             endpoints[methodName] = endpoint
 
     utils.saveJSON(endpoints, "endpoints.json")
+
+# Games list
+# def GetGamesList():
+
+# Game news
+def GetNewsForApp(appId: str, count:str = "3", maxLength:str = "300", format:str = "json", displayNews:bool = True):
+    endpoint_url = utils.getEndpoint("GetNewsForApp")
+    data = requests.get(f"{endpoint_url}?appid={appId}&count={count}&maxlength={maxLength}&format={format}")
+    if(not data.ok):
+        error("Error in request")
+        return
+    
+    appnews = data.json()["appnews"]
+    newsitems = appnews["newsitems"]
+    if(displayNews):
+        print("\033[32mLas noticias del juego son:\033[0m")
+        for new in newsitems:
+            print(new["title"])
+    return appnews
+

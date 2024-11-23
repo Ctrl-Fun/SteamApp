@@ -1,4 +1,5 @@
 import json
+from errors import error as error
 
 def saveJSON(data: dict, name: str = "data.json"):
     file_path = f"./src/{name}"
@@ -6,7 +7,17 @@ def saveJSON(data: dict, name: str = "data.json"):
     with open(file_path, "w") as json_file:
         json.dump(data, json_file, indent=4)
 
+def getEndpoint(endpoint_key: str):
+    json_endpoints_path = "src/endpoints.json"
 
+    with open(json_endpoints_path, "r") as f:
+        data = json.load(f)
+
+    if endpoint_key in data:
+        return data[endpoint_key]
+    else:
+        error("Error in getEndpoint: Endpoint not found")
+        
 def ApiMethodsList(publicFilePath: str, privateFilePath: str):
      # Abrir y cargar los datos públicos
     with open(publicFilePath) as f:

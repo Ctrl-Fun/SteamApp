@@ -16,3 +16,5 @@ saveJSON(response)
 saveJSON(response_public, "dataPublic.json")
 ApiMethodsList(publicFilePath="src/dataPublic.json" , privateFilePath="src/data.json")
 
+# Testing GetNewsForApp
+endpoints.GetNewsForApp(appId=app_id)
