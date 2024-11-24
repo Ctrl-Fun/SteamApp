@@ -1,5 +1,5 @@
 import json
-from errors import error as error
+from modules.logging import error as error
 
 def saveJSON(data: dict, name: str = "data.json"):
     file_path = f"./src/{name}"

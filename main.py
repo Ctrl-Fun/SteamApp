@@ -1,7 +1,7 @@
 import os 
-import endpoints
-import colors
-from utils import *
+import modules.endpoints as endpoints
+import modules.colors as colors
+from modules.utils import *
 
 token = os.environ["TOKEN"]
 base_path = os.environ["BASE_PATH"]

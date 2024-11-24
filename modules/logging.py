@@ -1,4 +1,4 @@
-import colors
+import modules.colors as colors
 
 def error(msg:str):
 

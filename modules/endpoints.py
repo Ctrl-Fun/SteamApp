@@ -1,8 +1,8 @@
 import os
 import requests
-import colors
-import utils
-from errors import error as error
+import modules.colors as colors
+import modules.utils as utils
+from modules.logging import error as error
 import json
 
 # API List
