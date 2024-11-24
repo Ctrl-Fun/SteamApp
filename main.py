@@ -10,11 +10,18 @@ app_id = 578080
 endpoints_url = endpoints.GetApiEndpoints()
 
 # Get and Save All Api Info
-response = endpoints.GetApiList(basePath=base_path, token=token)
-response_public = endpoints.GetApiList(basePath=base_path)
-saveJSON(response)
-saveJSON(response_public, "dataPublic.json")
-ApiMethodsList(publicFilePath="src/dataPublic.json" , privateFilePath="src/data.json")
+# response = endpoints.GetApiList(basePath=base_path, token=token)
+# response_public = endpoints.GetApiList(basePath=base_path)
+# saveJSON(response)
+# saveJSON(response_public, "dataPublic.json")
+# ApiMethodsList(publicFilePath="src/dataPublic.json" , privateFilePath="src/data.json")
 
 # Testing GetNewsForApp
-endpoints.GetNewsForApp(appId=app_id)
+# endpoints.GetNewsForApp(appId=app_id)
+# userGames = endpoints.GetUserGames()
+# print(userGames["games"])
+# for i in range(userGames["game_count"]):
+    # print(userGames["games"][i]["name"])
+
+# endpoints.GetUserFriends()
+endpoints.GetPlayerSummaries()
