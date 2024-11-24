@@ -9,12 +9,14 @@ app_id = 578080
 
 
 ### STARTING APP
-print('Starting App...')
+print(f'{colors.Green["linestart"]}Starting App...{colors.Green["lineend"]}')
 # Starting App: Loading Endpoints
 endpoints_url = endpoints.GetApiEndpoints()
 # Starting App: Loading Endpoints
 userFriends = endpoints.GetUserFriends()
-print('Data loaded')
+# Starting App: Loading  User Games
+userGames = endpoints.GetUserGames()
+print(f'{colors.Green["linestart"]}Data loaded{colors.Green["lineend"]}')
 
 # Get and Save All Api Info
 # response = endpoints.GetApiList(basePath=base_path, token=token)
@@ -24,19 +26,21 @@ print('Data loaded')
 # ApiMethodsList(publicFilePath="src/dataPublic.json" , privateFilePath="src/data.json")
 
 # Testing GetNewsForApp
-endpoints.GetNewsForApp(appId=app_id)
-# userGames = endpoints.GetUserGames()
-# print(userGames["games"])
-# for i in range(userGames["game_count"]):
-    # print(userGames["games"][i]["name"])
+def GetNewsForApp():
+    print("\n")
+    print("Testing GetNewsForApp")
+    endpoints.GetNewsForApp(appId=app_id)
+
+GetNewsForApp()
 
 
-for i in range(len(userFriends["friends"])):
+
+# for i in range(len(userFriends["friends"])):
     # print(userFriends["friends"][i])
-    steamId = userFriends["friends"][i]["steamid"]
-    userName =  endpoints.GetPlayerSummaries(steamId=steamId)["players"][0]["personaname"]
-    print(colors.boldPurple["linestart"]+userName+colors.boldPurple["lineend"])
-    print(steamId)
+    # steamId = userFriends["friends"][i]["steamid"]
+    # userName =  endpoints.GetPlayerSummaries(steamId=steamId)["players"][0]["personaname"]
+    # print(colors.boldPurple["linestart"]+userName+colors.boldPurple["lineend"])
+    # print(steamId)
     # userGames = endpoints.GetUserGames(steamId=steamId)
     # if(userGames):
     #     for i in range(userGames["game_count"]):
@@ -45,5 +49,10 @@ for i in range(len(userFriends["friends"])):
 # for steamId in 
 # endpoints.GetPlayerSummaries()
 
-# Testing GetNewsForApp
-endpoints.GetAchivements(appId=app_id, steamId=76561199042832616)
+# Testing GetAchivements
+def GetAchivements():
+    print("\n")
+    print("Testing GetAchivements")
+    endpoints.GetAchivements(appId=app_id, steamId=76561199042832616)
+
+GetAchivements()

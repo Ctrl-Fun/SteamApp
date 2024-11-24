@@ -74,8 +74,8 @@ def GetUserGames(steamId: int=os.environ["STEAM_ID"], appInfo:bool = True, freeG
     if(not data.ok):
         error("Error getting user games information")
         return
-    # print(json.dumps(data.json(), indent=4))
-    return data.json()["response"]
+
+    utils.saveJSON(data.json()["response"], "userGames.json")
 
 def GetUserFriends():
     token = os.environ["TOKEN"]
@@ -105,11 +105,12 @@ def GetPlayerSummaries(steamId: int = os.environ["STEAM_ID"]):
 def GetAchivements(appId: int, steamId: int = os.environ["STEAM_ID"]):
     token = os.environ["TOKEN"]
     endpoint_url =utils.getEndpoint("GetPlayerAchievements")
-    print(f"{endpoint_url}?key={token}&steamid={steamId}&appid{appId}")
     data = requests.get(f"{endpoint_url}?key={token}&steamid={steamId}&appid={appId}")
     if(not data.ok):
-        error("Error getting user achievements")
-        print(data)
+        if(data.json()["playerstats"]):
+            error(data.json()["playerstats"]["error"])
+        else:
+            error("Error getting user achievements")
         return 
     print(json.dumps(data.json(), indent=4))
     # return data.json()["friendslist"]
