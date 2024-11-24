@@ -1,5 +1,6 @@
 import os
 import requests
+import colors
 import utils
 from errors import error as error
 import json
@@ -59,24 +60,24 @@ def GetNewsForApp(appId: str, count:str = "3", maxLength:str = "300", format:str
     appnews = data.json()["appnews"]
     newsitems = appnews["newsitems"]
     if(displayNews):
-        print("\033[32mLas noticias del juego son:\033[0m")
+        print(f"{colors.Green["linestart"]}Las noticias del juego son:{colors.Green["lineend"]}")
         for new in newsitems:
             print(new["title"])
     return appnews
 
-def GetUserGames(appInfo:bool = True, freeGames: bool = True, freeSub: bool = True, SkipUnvettedApps: bool = False, language: str = "Spanish", extendedInfo: bool = True):
+def GetUserGames(steamId: int=os.environ["STEAM_ID"], appInfo:bool = True, freeGames: bool = True, freeSub: bool = True, SkipUnvettedApps: bool = False, language: str = "Spanish", extendedInfo: bool = True):
     token = os.environ["TOKEN"]
-    steamId = os.environ["STEAM_ID"]
+    # steamId = os.environ["STEAM_ID"]
     endpoint_url = utils.getEndpoint("GetOwnedGames")
     data = requests.get(f"{endpoint_url}?key={token}&steamid={steamId}&include_appinfo={appInfo}&include_played_free_games={freeGames}&skip_unvetted_apps={SkipUnvettedApps}&language={language}&include_extended_appinfo={extendedInfo}")
     
     if(not data.ok):
         error("Error getting user games information")
         return
-    print(json.dumps(data.json(), indent=4))
+    # print(json.dumps(data.json(), indent=4))
     return data.json()["response"]
 
-def GetPlayerSummaries():
+def GetUserFriends():
     token = os.environ["TOKEN"]
     steamId = os.environ["STEAM_ID"]
     endpoint_url = utils.getEndpoint("GetFriendList")
@@ -91,7 +92,6 @@ def GetPlayerSummaries():
 
 def GetPlayerSummaries(steamId: int = os.environ["STEAM_ID"]):
     token = os.environ["TOKEN"]
-    base_path = os.environ["BASE_PATH"]
     endpoint_url =utils.getEndpoint("GetPlayerSummaries")
     data = requests.get(f"{endpoint_url}?key={token}&steamids={steamId}")
     if(not data.ok):
@@ -101,3 +101,15 @@ def GetPlayerSummaries(steamId: int = os.environ["STEAM_ID"]):
     
     # print(json.dumps(data.json(), indent=4))
     return data.json()["response"]
+
+def GetAchivements(appId: int, steamId: int = os.environ["STEAM_ID"]):
+    token = os.environ["TOKEN"]
+    endpoint_url =utils.getEndpoint("GetPlayerAchievements")
+    print(f"{endpoint_url}?key={token}&steamid={steamId}&appid{appId}")
+    data = requests.get(f"{endpoint_url}?key={token}&steamid={steamId}&appid={appId}")
+    if(not data.ok):
+        error("Error getting user achievements")
+        print(data)
+        return 
+    print(json.dumps(data.json(), indent=4))
+    # return data.json()["friendslist"]
