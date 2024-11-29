@@ -60,7 +60,7 @@ def GetNewsForApp(appId: str, count:str = "3", maxLength:str = "300", format:str
     appnews = data.json()["appnews"]
     newsitems = appnews["newsitems"]
     if(displayNews):
-        print(f"{colors.Green["linestart"]}Las noticias del juego son:{colors.Green["lineend"]}")
+        print(f"{colors.Green}Las noticias del juego son:{colors.End}")
         for new in newsitems:
             print(new["title"])
     return appnews

@@ -1,22 +1,51 @@
 import os 
+from modules.logging import error as error
 import modules.endpoints as endpoints
 import modules.colors as colors
 from modules.utils import *
+import mysql.connector
 
-token = os.environ["TOKEN"]
-base_path = os.environ["BASE_PATH"]
+
 app_id = 578080
 
-
 ### STARTING APP
-print(f'{colors.Green["linestart"]}Starting App...{colors.Green["lineend"]}')
+print(f'{colors.Green}Starting App...{colors.End}')
+
+db = mysql.connector.connect(
+    user="steamapp_user",
+    password="steamapp",
+    database='steamapp',
+    host="localhost"
+)
+
+print(db)
+
+if(db):
+    cursor = db.cursor()
+    cursor.execute("""
+        SHOW TABLES
+    """)
+    resultado = cursor.fetchone()
+
+    if("endpoints" in resultado):
+        cursor.execute("SELECT COUNT(*) FROM endpoints;")
+        resultado = cursor.fetchone()
+
+        if(resultado[0] < 0):
+            pass
+            # llenar tabla
+else:
+    error("Error in request")
+
+
+
 # Starting App: Loading Endpoints
 endpoints_url = endpoints.GetApiEndpoints()
 # Starting App: Loading Endpoints
 userFriends = endpoints.GetUserFriends()
 # Starting App: Loading  User Games
 userGames = endpoints.GetUserGames()
-print(f'{colors.Green["linestart"]}Data loaded{colors.Green["lineend"]}')
+print(f'{colors.Green}Data loaded{colors.End}')
 
 # Get and Save All Api Info
 # response = endpoints.GetApiList(basePath=base_path, token=token)
@@ -39,7 +68,7 @@ GetNewsForApp()
     # print(userFriends["friends"][i])
     # steamId = userFriends["friends"][i]["steamid"]
     # userName =  endpoints.GetPlayerSummaries(steamId=steamId)["players"][0]["personaname"]
-    # print(colors.boldPurple["linestart"]+userName+colors.boldPurple["lineend"])
+    # print(colors.boldPurple+userName+colors.End)
     # print(steamId)
     # userGames = endpoints.GetUserGames(steamId=steamId)
     # if(userGames):
