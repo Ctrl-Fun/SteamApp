@@ -2,7 +2,7 @@ import os
 import requests
 import modules.colors as colors
 import modules.utils as utils
-from modules.logging import error as error
+from modules.logging import error, success
 import json
 
 # API List
@@ -30,7 +30,7 @@ def GetApiEndpoints():
     
     data = response.json()
     interfaces = data['apilist']['interfaces']
-    endpoints = {}
+    endpoints = []
 
     for interface in interfaces:
         intName = interface['name']
@@ -39,9 +39,12 @@ def GetApiEndpoints():
             version = method['version']
             # Construir la ruta del endpoint
             endpoint = f"{base_path}/{intName}/{methodName}/v{version}/"
-            endpoints[methodName] = endpoint
+            result = [methodName, endpoint]
+        
+        endpoints.append(result)
 
-    utils.saveJSON(endpoints, "endpoints.json")
+    print(endpoints)
+    # utils.saveJSON(endpoints, "endpoints.json")
 
 # Games list (maybe in the future...)
 # def GetGamesList(dlc: bool = False, maxResults: int = 10000):
@@ -60,14 +63,13 @@ def GetNewsForApp(appId: str, count:str = "3", maxLength:str = "300", format:str
     appnews = data.json()["appnews"]
     newsitems = appnews["newsitems"]
     if(displayNews):
-        print(f"{colors.Green}Las noticias del juego son:{colors.End}")
+        success("Las noticias del juego son:")
         for new in newsitems:
             print(new["title"])
     return appnews
 
 def GetUserGames(steamId: int=os.environ["STEAM_ID"], appInfo:bool = True, freeGames: bool = True, freeSub: bool = True, SkipUnvettedApps: bool = False, language: str = "Spanish", extendedInfo: bool = True):
     token = os.environ["TOKEN"]
-    # steamId = os.environ["STEAM_ID"]
     endpoint_url = utils.getEndpoint("GetOwnedGames")
     data = requests.get(f"{endpoint_url}?key={token}&steamid={steamId}&include_appinfo={appInfo}&include_played_free_games={freeGames}&skip_unvetted_apps={SkipUnvettedApps}&language={language}&include_extended_appinfo={extendedInfo}")
     
