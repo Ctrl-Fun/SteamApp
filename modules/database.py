@@ -4,15 +4,15 @@ from modules.logging import error, success
 
 class Database:
     def __init__(self) -> None:
-        self.db = mysql.connector.connect(
-            user=os.environ["DB_USER"],
-            password=os.environ["DB_PASSWORD"],
-            database=os.environ["DB_NAME"],
-            host=os.environ["DB_HOST"]
-        )
+        self.db_config = {
+            "user": os.environ.get("DB_USER"),
+            "password": os.environ.get("DB_PASSWORD"),
+            "database": os.environ.get("DB_NAME"),
+            "host": os.environ.get("DB_HOST"),
+        }
 
     def createTable(self, table: str, array_data: list):
-        db = self.db
+        db = mysql.connector.connect(**self.db_config)
 
         if(db):
             cursor = db.cursor()
@@ -36,7 +36,10 @@ class Database:
         else:
             error("Database doesn't exist")
 
+        db.close()
+
     def fillTable(self, tableName: str, tableData: list, data: list):
+        db = mysql.connector.connect(**self.db_config)
         # data es una lista de tuplas
         db = self.db
         n = len(tableData)
@@ -64,6 +67,9 @@ class Database:
         else:
             error("Database doesn't exist")
 
+        db.close()
+    
+    ################### DE AQUI PARA ABAJO A BORRAR!
     def endpoints(self):
         db = self.db
 

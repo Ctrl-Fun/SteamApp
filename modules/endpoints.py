@@ -39,11 +39,11 @@ def GetApiEndpoints():
             version = method['version']
             # Construir la ruta del endpoint
             endpoint = f"{base_path}/{intName}/{methodName}/v{version}/"
-            result = [methodName, endpoint]
+            result = (methodName, endpoint)
         
         endpoints.append(result)
 
-    print(endpoints)
+    return(endpoints)
     # utils.saveJSON(endpoints, "endpoints.json")
 
 # Games list (maybe in the future...)
