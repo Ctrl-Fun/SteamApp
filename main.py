@@ -10,15 +10,7 @@ database=Database()
 app_id = 578080
 
 ### STARTING APP
-success("Starting App...")
 
-# Starting App: Loading Endpoints
-endpoints_url = endpoints.GetApiEndpoints()
-# Starting App: Loading Endpoints
-userFriends = endpoints.GetUserFriends()
-# Starting App: Loading  User Games
-userGames = endpoints.GetUserGames()
-success("Data loaded")
 
 # Get and Save All Api Info
 # response = endpoints.GetApiList(basePath=base_path, token=token)

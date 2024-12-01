@@ -1,13 +1,14 @@
+import os
 import mysql.connector
 from modules.logging import error, success
 
 class Database:
     def __init__(self) -> None:
         self.db = mysql.connector.connect(
-            user="steamapp_user",
-            password="steamapp",
-            database='steamapp',
-            host="localhost"
+            user=os.environ["DB_USER"],
+            password=os.environ["DB_PASSWORD"],
+            database=os.environ["DB_NAME"],
+            host=os.environ["DB_HOST"]
         )
 
     def createTable(self, table: str, array_data: list):
@@ -15,9 +16,7 @@ class Database:
 
         if(db):
             cursor = db.cursor()
-            cursor.execute("""
-                SHOW TABLES
-            """)
+            cursor.execute("SHOW TABLES")
             resultado = cursor.fetchall()
             tables = [item[0] for item in resultado]
 
@@ -40,26 +39,26 @@ class Database:
     def fillTable(self, tableName: str, tableData: list, data: list):
         # data es una lista de tuplas
         db = self.db
+        n = len(tableData)
         columnsList = [item[0] for item in tableData]
         columnsStr = ", ".join(str(x) for x in columnsList)
+
         if(db):
             cursor = db.cursor()
-            cursor.execute("""
-                SHOW TABLES
-            """)
+            cursor.execute("SHOW TABLES")
             resultado = cursor.fetchall()
             tables = [item[0] for item in resultado]
-            print(tables)
             if(tableName in tables):
                 cursor.execute(f"SELECT COUNT(*) FROM {tableName};")
                 resultado = cursor.fetchone()
-                print(resultado[0]) 
                 if(resultado[0] <= 0):
-                    print("filling table...")
-                    #necesitamos definir como van a llegar los datos
-                    sql = f"INSERT INTO {tableName} ({columnsStr}) VALUES (%s, %s)"
+                    sql_aux = ", ".join(["%s"] * n)
+                    sql = f"INSERT INTO {tableName} ({columnsStr}) VALUES ({sql_aux})"
                     cursor.executemany(sql, data) 
                     db.commit()
+                    success(f"Rows created in table {tableName}")
+                else:
+                    success(f"{tableName} already filled")
             else:
                 error("Table "+ tableName +" doesn't exis")
         else:
