@@ -19,18 +19,18 @@ table_data = [
     ["url", "TEXT"]
 ]
 
-tableExist = database.existTable(tableName=table_name)
+tableExist = database.table_exists(table_name)
 if(not tableExist):
-    database.createTable(table=table_name, array_data=table_data)
+    database.create_table(table_name, table_data)
 
-rows_count = database.isTableFilled(tableName=table_name)
+rows_count = database.is_table_filled(table_name)
 if(rows_count == 0):
     table_content = endpoints.GetApiEndpoints()
-    database.fillTable(tableName=table_name, tableData=table_data, data=table_content)
+    database.fill_table(table_name, table_data, table_content)
 
 
 # result = database.clearTable(tableName=table_name)
 
-result = database.isTableFilled(tableName=table_name)
+result = database.is_table_filled(table_name)
 
 print(result)

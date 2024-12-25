@@ -11,121 +11,89 @@ class Database:
             "host": os.environ.get("DB_HOST"),
         }
 
-    def createTable(self, table: str, array_data: list):
-        db = mysql.connector.connect(**self.db_config)
+    def get_connection(self):
+        try:
+            return mysql.connector.connect(**self.db_config)
+        except mysql.connector.Error as e:
+            error(f"Database connection error: {e}")
+            return None
 
-        if(db):
-            cursor = db.cursor()
-            cursor.execute("SHOW TABLES")
-            resultado = cursor.fetchall()
-            tables = [item[0] for item in resultado]
+    def table_exists(self, table_name):
+        db = self.get_connection()
+        if db:
+            try:
+                cursor = db.cursor()
+                cursor.execute("SHOW TABLES LIKE %s", (table_name,))
+                return cursor.fetchone() is not None
+            finally:
+                cursor.close()
+                db.close()
+        return False
+    
+    def is_table_filled(self, table_name):
+        if not self.table_exists(table_name):
+            error(f"Table '{table_name}' does not exist")
+            return False  # O retornar 0 si prefieres.
 
-            if(not table in tables):
-                columns = ""
-                for idx, item in enumerate(array_data):
-                    if idx == len(array_data) - 1:  # Si es el último elemento
-                        columns += f"{item[0]} {item[1]}"
-                    else:
-                        columns += f"{item[0]} {item[1]}, "
+        db = self.get_connection()
+        if db:
+            try:
+                cursor = db.cursor()
+                cursor.execute(f"SELECT COUNT(*) FROM `{table_name}`")
+                row_count = cursor.fetchone()[0]
+                return row_count > 0  # Devuelve True si tiene filas, False si está vacía.
+            except mysql.connector.Error as e:
+                error(f"Error checking rows in table '{table_name}': {e}")
+                return False
+            finally:
+                cursor.close()
+                db.close()
 
-                sql = f"CREATE TABLE {table} (id INT AUTO_INCREMENT PRIMARY KEY, {columns})"
-                cursor.execute(sql)
-                success("Table created")
-            else:
-                success("Table exists already")
-                
-            db.close()
-        else:
-            error("Database doesn't exist")
-
-
-    def fillTable(self, tableName: str, tableData: list, data: list):
-        db = mysql.connector.connect(**self.db_config)
-
-        n = len(tableData)
-        columnsList = [item[0] for item in tableData]
-        columnsStr = ", ".join(str(x) for x in columnsList)
-
-        if(db):
-            cursor = db.cursor()
-            cursor.execute("SHOW TABLES")
-            resultado = cursor.fetchall()
-            tables = [item[0] for item in resultado]
-            if(tableName in tables):
-                cursor.execute(f"SELECT COUNT(*) FROM {tableName};")
-                resultado = cursor.fetchone()
-                if(resultado[0] <= 0):
-                    sql_aux = ", ".join(["%s"] * n)
-                    sql = f"INSERT INTO {tableName} ({columnsStr}) VALUES ({sql_aux})"
-                    cursor.executemany(sql, data) 
-                    db.commit()
-                    success(f"Rows created in table {tableName}")
-                else:
-                    success(f"{tableName} already filled")
-            else:
-                error("Table "+ tableName +" doesn't exist")
-            
-            db.close()
-        else:
-            error("Database doesn't exist")
-
-    def existTable(self, tableName:str):
-        db = mysql.connector.connect(**self.db_config)
-        status = False
-
-        if(db):
-            cursor = db.cursor()
-            cursor.execute("SHOW TABLES")
-            resultado = cursor.fetchall()
-            tables = [item[0] for item in resultado]
-            if(tableName in tables):
-                status = True
-            
-            db.close()
-            return status
+    def create_table(self, table, array_data):
+        if self.table_exists(table):
+            success("Table already exists")
+            return
         
-        else:
-            error("Database doesn't exist")
+        db = self.get_connection()
+        if db:
+            try:
+                cursor = db.cursor()
+                columns = ", ".join(f"{col[0]} {col[1]}" for col in array_data)
+                sql = f"CREATE TABLE `{table}` (id INT AUTO_INCREMENT PRIMARY KEY, {columns})"
+                cursor.execute(sql)
+                success(f"Table '{table}' created")
+            except mysql.connector.Error as e:
+                error(f"Error creating table '{table}': {e}")
+            finally:
+                cursor.close()
+                db.close()
 
-    def isTableFilled(self, tableName:str):
-        db = mysql.connector.connect(**self.db_config)
-
-        if(db):
-            cursor = db.cursor()
-            cursor.execute("SHOW TABLES")
-            resultado = cursor.fetchall()
-            tables = [item[0] for item in resultado]
-            if(tableName in tables):
-                cursor.execute(f"SELECT COUNT(*) FROM {tableName};")
-                row_count = cursor.fetchone()[0]
-
-                return row_count
-            
-            db.close()
-        else:
-            error("Database doesn't exist")
-
-    def clearTable(self, tableName:str):
-        db = mysql.connector.connect(**self.db_config)
-        status = False
-
-        if(db):
-            cursor = db.cursor()
-            cursor.execute("SHOW TABLES")
-            resultado = cursor.fetchall()
-            tables = [item[0] for item in resultado]
-            if(tableName in tables):
-                cursor.execute(f"DELETE FROM {tableName};")
+    def fill_table(self, table, table_data, data):
+        if not self.table_exists(table):
+            error(f"Table '{table}' does not exist")
+            return
+        
+        db = self.get_connection()
+        if db:
+            try:
+                cursor = db.cursor()
+                cursor.execute(f"SELECT COUNT(*) FROM `{table}`")
+                if cursor.fetchone()[0] > 0:
+                    success(f"Table '{table}' already filled")
+                    return
+                
+                columns = ", ".join(col[0] for col in table_data)
+                placeholders = ", ".join(["%s"] * len(table_data))
+                sql = f"INSERT INTO `{table}` ({columns}) VALUES ({placeholders})"
+                cursor.executemany(sql, data)
                 db.commit()
-                cursor.execute(f"SELECT COUNT(*) FROM {tableName};")
-                row_count = cursor.fetchone()[0]
-                if(row_count == 0):
-                    status = True
-           
-            db.close()
-            return status
-        else:
-            error("Database doesn't exist")
+                success(f"Rows inserted into '{table}'")
+            except mysql.connector.Error as e:
+                error(f"Error filling table '{table}': {e}")
+            finally:
+                cursor.close()
+                db.close()
+
 
     
     ################### DE AQUI PARA ABAJO A BORRAR!
