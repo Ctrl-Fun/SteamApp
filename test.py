@@ -6,25 +6,31 @@ from modules.utils import *
 from modules.database import Database
 from modules.init import Init
 
+
+
+### STARTING APP
+
 database=Database()
 
-# database.endpoints()
-
-# endpoints.GetApiEndpoints()
-
+# Get and Save All Api Info
 table_name = "endpoints"
-
 table_data = [
     ["name", "VARCHAR(255)"],
     ["url", "TEXT"]
 ]
 
-# table_content = [
-#     ("ReportEvent", "https://api.steampowered.com/IClientStats_1046930/ReportEvent/v1/"),
-#     ("GetNextMatchSharingCode", "https://api.steampowered.com/ICSGOPlayers_730/GetNextMatchSharingCode/v1/")
-#     ]
+tableExist = database.existTable(tableName=table_name)
+if(not tableExist):
+    database.createTable(table=table_name, array_data=table_data)
 
-database.createTable(table=table_name, array_data=table_data)
-# database.fillTable(tableName=table_name, tableData=table_data, data=table_content)
+rows_count = database.isTableFilled(tableName=table_name)
+if(rows_count == 0):
+    table_content = endpoints.GetApiEndpoints()
+    database.fillTable(tableName=table_name, tableData=table_data, data=table_content)
 
-# Init()
+
+# result = database.clearTable(tableName=table_name)
+
+result = database.isTableFilled(tableName=table_name)
+
+print(result)

@@ -33,15 +33,15 @@ class Database:
                 success("Table created")
             else:
                 success("Table exists already")
+                
+            db.close()
         else:
             error("Database doesn't exist")
 
-        db.close()
 
     def fillTable(self, tableName: str, tableData: list, data: list):
         db = mysql.connector.connect(**self.db_config)
-        # data es una lista de tuplas
-        db = self.db
+
         n = len(tableData)
         columnsList = [item[0] for item in tableData]
         columnsStr = ", ".join(str(x) for x in columnsList)
@@ -63,11 +63,70 @@ class Database:
                 else:
                     success(f"{tableName} already filled")
             else:
-                error("Table "+ tableName +" doesn't exis")
+                error("Table "+ tableName +" doesn't exist")
+            
+            db.close()
         else:
             error("Database doesn't exist")
 
-        db.close()
+    def existTable(self, tableName:str):
+        db = mysql.connector.connect(**self.db_config)
+        status = False
+
+        if(db):
+            cursor = db.cursor()
+            cursor.execute("SHOW TABLES")
+            resultado = cursor.fetchall()
+            tables = [item[0] for item in resultado]
+            if(tableName in tables):
+                status = True
+            
+            db.close()
+            return status
+        
+        else:
+            error("Database doesn't exist")
+
+    def isTableFilled(self, tableName:str):
+        db = mysql.connector.connect(**self.db_config)
+
+        if(db):
+            cursor = db.cursor()
+            cursor.execute("SHOW TABLES")
+            resultado = cursor.fetchall()
+            tables = [item[0] for item in resultado]
+            if(tableName in tables):
+                cursor.execute(f"SELECT COUNT(*) FROM {tableName};")
+                row_count = cursor.fetchone()[0]
+
+                return row_count
+            
+            db.close()
+        else:
+            error("Database doesn't exist")
+
+    def clearTable(self, tableName:str):
+        db = mysql.connector.connect(**self.db_config)
+        status = False
+
+        if(db):
+            cursor = db.cursor()
+            cursor.execute("SHOW TABLES")
+            resultado = cursor.fetchall()
+            tables = [item[0] for item in resultado]
+            if(tableName in tables):
+                cursor.execute(f"DELETE FROM {tableName};")
+                db.commit()
+                cursor.execute(f"SELECT COUNT(*) FROM {tableName};")
+                row_count = cursor.fetchone()[0]
+                if(row_count == 0):
+                    status = True
+           
+            db.close()
+            return status
+        else:
+            error("Database doesn't exist")
+
     
     ################### DE AQUI PARA ABAJO A BORRAR!
     def endpoints(self):
