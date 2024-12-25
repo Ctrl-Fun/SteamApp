@@ -1,14 +1,20 @@
 import os 
 from modules.logging import error as error
+from dotenv import load_dotenv
 import modules.endpoints as endpoints
 import modules.colors as colors
 from modules.utils import *
 from modules.database import Database
 from modules.init import Init
 
-
-
 ### STARTING APP
+
+# Load environment variables
+load_dotenv()
+
+TOKEN = os.getenv("TOKEN")
+BASE_PATH = os.getenv("BASE_PATH")
+
 
 database=Database()
 
@@ -25,7 +31,7 @@ if(not tableExist):
 
 rows_count = database.is_table_filled(table_name)
 if(rows_count == 0):
-    table_content = endpoints.GetApiEndpoints()
+    table_content = endpoints.GetApiEndpoints(TOKEN, BASE_PATH)
     database.fill_table(table_name, table_data, table_content)
 
 

@@ -1,14 +1,15 @@
 import os
 import mysql.connector
+from dotenv import load_dotenv
 from modules.logging import error, success
 
 class Database:
     def __init__(self) -> None:
         self.db_config = {
-            "user": os.environ.get("DB_USER"),
-            "password": os.environ.get("DB_PASSWORD"),
-            "database": os.environ.get("DB_NAME"),
-            "host": os.environ.get("DB_HOST"),
+            "user": os.getenv("DB_USER"),
+            "password": os.getenv("DB_PASSWORD"),
+            "database": os.getenv("DB_NAME"),
+            "host": os.getenv("DB_HOST"),
         }
 
     def get_connection(self):

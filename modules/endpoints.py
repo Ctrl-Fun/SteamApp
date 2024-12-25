@@ -18,9 +18,9 @@ def GetApiList(basePath: str, token: str = ""):
     return data.json()
 
 # API List
-def GetApiEndpoints():
-    token = os.environ["TOKEN"]
-    base_path = os.environ["BASE_PATH"]
+def GetApiEndpoints(token: int, base_path: str):
+    # token = os.environ["TOKEN"]
+    # base_path = os.environ["BASE_PATH"]
     url = f"{base_path}/ISteamWebAPIUtil/GetSupportedAPIList/v0001/?key={token}"
     response = requests.get(url)
 
@@ -51,7 +51,6 @@ def GetApiEndpoints():
 #     token = os.environ["TOKEN"]
     
 
-
 # Game news
 def GetNewsForApp(appId: str, count:str = "3", maxLength:str = "300", format:str = "json", displayNews:bool = True):
     endpoint_url = utils.getEndpoint("GetNewsForApp")
@@ -68,7 +67,7 @@ def GetNewsForApp(appId: str, count:str = "3", maxLength:str = "300", format:str
             print(new["title"])
     return appnews
 
-def GetUserGames(steamId: int=os.environ["STEAM_ID"], appInfo:bool = True, freeGames: bool = True, freeSub: bool = True, SkipUnvettedApps: bool = False, language: str = "Spanish", extendedInfo: bool = True):
+def GetUserGames(steamId: int, appInfo:bool = True, freeGames: bool = True, freeSub: bool = True, SkipUnvettedApps: bool = False, language: str = "Spanish", extendedInfo: bool = True):
     token = os.environ["TOKEN"]
     endpoint_url = utils.getEndpoint("GetOwnedGames")
     data = requests.get(f"{endpoint_url}?key={token}&steamid={steamId}&include_appinfo={appInfo}&include_played_free_games={freeGames}&skip_unvetted_apps={SkipUnvettedApps}&language={language}&include_extended_appinfo={extendedInfo}")
@@ -92,7 +91,7 @@ def GetUserFriends():
     # print(json.dumps(data.json(), indent=4))
     return data.json()["friendslist"]
 
-def GetPlayerSummaries(steamId: int = os.environ["STEAM_ID"]):
+def GetPlayerSummaries(steamId: int):
     token = os.environ["TOKEN"]
     endpoint_url =utils.getEndpoint("GetPlayerSummaries")
     data = requests.get(f"{endpoint_url}?key={token}&steamids={steamId}")
@@ -104,7 +103,7 @@ def GetPlayerSummaries(steamId: int = os.environ["STEAM_ID"]):
     # print(json.dumps(data.json(), indent=4))
     return data.json()["response"]
 
-def GetAchivements(appId: int, steamId: int = os.environ["STEAM_ID"]):
+def GetAchivements(appId: int, steamId: int):
     token = os.environ["TOKEN"]
     endpoint_url =utils.getEndpoint("GetPlayerAchievements")
     data = requests.get(f"{endpoint_url}?key={token}&steamid={steamId}&appid={appId}")
