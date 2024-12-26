@@ -19,8 +19,6 @@ def GetApiList(basePath: str, token: str = ""):
 
 # API List
 def GetApiEndpoints(token: int, base_path: str):
-    # token = os.environ["TOKEN"]
-    # base_path = os.environ["BASE_PATH"]
     url = f"{base_path}/ISteamWebAPIUtil/GetSupportedAPIList/v0001/?key={token}"
     response = requests.get(url)
 
@@ -41,10 +39,19 @@ def GetApiEndpoints(token: int, base_path: str):
             endpoint = f"{base_path}/{intName}/{methodName}/v{version}/"
             result = (methodName, endpoint)
         
-        endpoints.append(result)
-
+            endpoints.append(result)
     return(endpoints)
-    # utils.saveJSON(endpoints, "endpoints.json")
+
+def GetUserGames(token: int, steamId: int, appInfo:bool = True, freeGames: bool = True, freeSub: bool = True, SkipUnvettedApps: bool = False, language: str = "Spanish", extendedInfo: bool = True):
+    endpoint_url = utils.getEndpoint("GetOwnedGames")
+    print(endpoint_url)
+    data = requests.get(f"{endpoint_url}?key={token}&steamid={steamId}&include_appinfo={appInfo}&include_played_free_games={freeGames}&skip_unvetted_apps={SkipUnvettedApps}&language={language}&include_extended_appinfo={extendedInfo}")
+    
+    if(not data.ok):
+        error("Error getting user games information")
+        return
+
+    utils.saveJSON(data.json()["response"], "userGames.json")
 
 # Games list (maybe in the future...)
 # def GetGamesList(dlc: bool = False, maxResults: int = 10000):
@@ -67,16 +74,7 @@ def GetNewsForApp(appId: str, count:str = "3", maxLength:str = "300", format:str
             print(new["title"])
     return appnews
 
-def GetUserGames(steamId: int, appInfo:bool = True, freeGames: bool = True, freeSub: bool = True, SkipUnvettedApps: bool = False, language: str = "Spanish", extendedInfo: bool = True):
-    token = os.environ["TOKEN"]
-    endpoint_url = utils.getEndpoint("GetOwnedGames")
-    data = requests.get(f"{endpoint_url}?key={token}&steamid={steamId}&include_appinfo={appInfo}&include_played_free_games={freeGames}&skip_unvetted_apps={SkipUnvettedApps}&language={language}&include_extended_appinfo={extendedInfo}")
-    
-    if(not data.ok):
-        error("Error getting user games information")
-        return
 
-    utils.saveJSON(data.json()["response"], "userGames.json")
 
 def GetUserFriends():
     token = os.environ["TOKEN"]

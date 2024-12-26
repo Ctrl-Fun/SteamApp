@@ -50,7 +50,7 @@ class Database:
                 cursor.close()
                 db.close()
 
-    def create_table(self, table, array_data):
+    def create_table(self, table, table_structure):
         if self.table_exists(table):
             success("Table already exists")
             return
@@ -59,7 +59,7 @@ class Database:
         if db:
             try:
                 cursor = db.cursor()
-                columns = ", ".join(f"{col[0]} {col[1]}" for col in array_data)
+                columns = ", ".join(f"{col[0]} {col[1]}" for col in table_structure)
                 sql = f"CREATE TABLE `{table}` (id INT AUTO_INCREMENT PRIMARY KEY, {columns})"
                 cursor.execute(sql)
                 success(f"Table '{table}' created")
@@ -69,10 +69,19 @@ class Database:
                 cursor.close()
                 db.close()
 
-    def fill_table(self, table, table_data, data):
+
+    def fill_table(self, table, table_structure, table_data):
         if not self.table_exists(table):
             error(f"Table '{table}' does not exist")
             return
+        
+        if not isinstance(table_data, list):
+            return False
+
+        # Verificar que cada elemento es una tupla
+        for item in table_data:
+            if not isinstance(item, tuple):
+                return False
         
         db = self.get_connection()
         if db:
@@ -83,10 +92,10 @@ class Database:
                     success(f"Table '{table}' already filled")
                     return
                 
-                columns = ", ".join(col[0] for col in table_data)
-                placeholders = ", ".join(["%s"] * len(table_data))
+                columns = ", ".join(col[0] for col in table_structure)
+                placeholders = ", ".join(["%s"] * len(table_structure))
                 sql = f"INSERT INTO `{table}` ({columns}) VALUES ({placeholders})"
-                cursor.executemany(sql, data)
+                cursor.executemany(sql, table_data)
                 db.commit()
                 success(f"Rows inserted into '{table}'")
             except mysql.connector.Error as e:
@@ -95,38 +104,37 @@ class Database:
                 cursor.close()
                 db.close()
 
+    def select_from_table(self, table, columns=None, where_clause=None):
+        if not self.table_exists(table):
+            error(f"Table '{table}' does not exist")
+            return None
+        
+        db = self.get_connection()
+        if db:
+            try:
+                cursor = db.cursor()
+                print(columns)
+                # Generar columnas para seleccionar
+                columns = ", ".join(columns) if columns else "*"
+                
+                # Construir consulta SQL
+                query = f"SELECT {columns} FROM `{table}`"
+                if where_clause:
+                    query += f" WHERE {where_clause}"
+                
+                # Ejecutar consulta
+                print(query)
+                cursor.execute(query)
+                return cursor.fetchall()
+            except mysql.connector.Error as e:
+                error(f"Error selecting from table '{table}': {e}")
+            finally:
+                cursor.close()
+                db.close()
+        return None
 
     
     ################### DE AQUI PARA ABAJO A BORRAR!
-    def endpoints(self):
-        db = self.db
-
-        if(db): # chequear conexion con bbdd
-            cursor = db.cursor()
-            cursor.execute("""
-                SHOW TABLES
-            """)
-            resultado = cursor.fetchall()
-            tables = [item[0] for item in resultado]
-
-            if("endpoints" in tables):
-                cursor.execute("SELECT COUNT(*) FROM endpoints;")
-                resultado = cursor.fetchone()
-                print(resultado)
-
-                if(resultado[0] <= 0):   # llenar tabla
-                    sql = ("INSERT INTO endpoints (nombre_endpoint, url_endpoint) VALUES (%s, %s)")
-                    values = ("ReportEvent","https://api.steampowered.com/IClientStats_1046930/ReportEvent/v1/")
-                    cursor.execute(sql, values)
-                    db.commit()
-
-                    print(cursor.rowcount, "registro(s) insertado(s)")
-                else:
-                    print("tabla endpoints con valores")
-            else:
-                cursor.execute("CREATE TABLE endpoints (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), url TEXT)")
-        else:
-            error("Error in request")
 
     def games(self):
         db = self.db
