@@ -1,6 +1,5 @@
 import os
 import mysql.connector
-from dotenv import load_dotenv
 from modules.logging import error, success
 
 class Database:
@@ -76,11 +75,13 @@ class Database:
             return
         
         if not isinstance(table_data, list):
+            error("Table data must be a list")
             return False
 
         # Verificar que cada elemento es una tupla
         for item in table_data:
             if not isinstance(item, tuple):
+                error("Table data must be a list of tuples")
                 return False
         
         db = self.get_connection()
@@ -113,7 +114,6 @@ class Database:
         if db:
             try:
                 cursor = db.cursor()
-                print(columns)
                 # Generar columnas para seleccionar
                 columns = ", ".join(columns) if columns else "*"
                 
@@ -123,7 +123,6 @@ class Database:
                     query += f" WHERE {where_clause}"
                 
                 # Ejecutar consulta
-                print(query)
                 cursor.execute(query)
                 return cursor.fetchall()
             except mysql.connector.Error as e:

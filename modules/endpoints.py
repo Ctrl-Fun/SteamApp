@@ -4,6 +4,9 @@ import modules.colors as colors
 import modules.utils as utils
 from modules.logging import error, success
 import json
+from modules.database import Database
+import modules.dictionary as dictionary
+
 
 # API List
 def GetApiList(basePath: str, token: str = ""):
@@ -44,14 +47,22 @@ def GetApiEndpoints(token: int, base_path: str):
 
 def GetUserGames(token: int, steamId: int, appInfo:bool = True, freeGames: bool = True, freeSub: bool = True, SkipUnvettedApps: bool = False, language: str = "Spanish", extendedInfo: bool = True):
     endpoint_url = utils.getEndpoint("GetOwnedGames")
-    print(endpoint_url)
+    fields = dictionary.Endpoints['get_user_games']
+    database=Database()
+    user_games_array = database.select_from_table('endpoints', ['url'], 'name = "GetOwnedGames"')
+    endpoint_url = user_games_array[0][0]
     data = requests.get(f"{endpoint_url}?key={token}&steamid={steamId}&include_appinfo={appInfo}&include_played_free_games={freeGames}&skip_unvetted_apps={SkipUnvettedApps}&language={language}&include_extended_appinfo={extendedInfo}")
     
     if(not data.ok):
         error("Error getting user games information")
         return
 
-    utils.saveJSON(data.json()["response"], "userGames.json")
+    data = data.json()["response"]
+
+    response = [
+        tuple(game.get(field, None) for field in fields) for game in data['games']
+    ]
+    return response
 
 # Games list (maybe in the future...)
 # def GetGamesList(dlc: bool = False, maxResults: int = 10000):
@@ -73,8 +84,6 @@ def GetNewsForApp(appId: str, count:str = "3", maxLength:str = "300", format:str
         for new in newsitems:
             print(new["title"])
     return appnews
-
-
 
 def GetUserFriends():
     token = os.environ["TOKEN"]
