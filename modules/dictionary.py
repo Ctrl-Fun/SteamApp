@@ -19,6 +19,11 @@ Database = {
         ["has_market", "BOOLEAN"],
         ["has_dlc", "BOOLEAN"],
         ["playtime_disconnected", "INTEGER"]
+    ],
+    'user_friends': [
+        ["steamid", "BIGINT"],
+        ["relationship", "VARCHAR(255)"],
+        ["friend_since", "INTEGER"]
     ]
 }
 
@@ -39,5 +44,10 @@ Endpoints = {
         'has_market',
         'has_dlc',
         'playtime_disconnected'
+    ],
+    'get_user_friends': [
+        'steamid',
+        'relationship',
+        'friend_since'
     ]
 }

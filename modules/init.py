@@ -22,7 +22,12 @@ class Init():
 
         # Get and Save all User Games Info
         self.load_user_games(database, TOKEN, STEAM_ID)
-        success("Data loaded")
+
+        # Get and Save all User Friends Info
+        self.load_user_friends(database, TOKEN, STEAM_ID)
+
+        success("Data loaded successfully")
+
 
     def load_endpoints(self, database : Database, TOKEN: str, BASE_PATH: str):
         table_name = "endpoints"
@@ -47,4 +52,16 @@ class Init():
         rows_count = database.is_table_filled(table_name)
         if(rows_count == 0):
             table_content = endpoints.GetUserGames(token=TOKEN,steamId=STEAM_ID)
+            database.fill_table(table_name, table_data, table_content)
+
+    def load_user_friends(self, database : Database, TOKEN: str, STEAM_ID: str):
+        table_name = "user_friends"
+        table_data = dictionary.Database['user_friends']
+        tableExist = database.table_exists(table_name)
+        if(not tableExist):
+            database.create_table(table_name, table_data)
+
+        rows_count = database.is_table_filled(table_name)
+        if(rows_count == 0):
+            table_content = endpoints.GetUserFriends(token=TOKEN,steamId=STEAM_ID)
             database.fill_table(table_name, table_data, table_content)

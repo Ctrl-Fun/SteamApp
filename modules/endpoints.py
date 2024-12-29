@@ -1,6 +1,5 @@
 import os
 import requests
-import modules.colors as colors
 import modules.utils as utils
 from modules.logging import error, success
 import json
@@ -46,28 +45,46 @@ def GetApiEndpoints(token: int, base_path: str):
     return(endpoints)
 
 def GetUserGames(token: int, steamId: int, appInfo:bool = True, freeGames: bool = True, freeSub: bool = True, SkipUnvettedApps: bool = False, language: str = "Spanish", extendedInfo: bool = True):
-    endpoint_url = utils.getEndpoint("GetOwnedGames")
     fields = dictionary.Endpoints['get_user_games']
     database=Database()
-    user_games_array = database.select_from_table('endpoints', ['url'], 'name = "GetOwnedGames"')
-    endpoint_url = user_games_array[0][0]
+    endpoint_array = database.select_from_table('endpoints', ['url'], 'name = "GetOwnedGames"')
+    endpoint_url = endpoint_array[0][0]
     data = requests.get(f"{endpoint_url}?key={token}&steamid={steamId}&include_appinfo={appInfo}&include_played_free_games={freeGames}&skip_unvetted_apps={SkipUnvettedApps}&language={language}&include_extended_appinfo={extendedInfo}")
     
     if(not data.ok):
         error("Error getting user games information")
         return
 
-    data = data.json()["response"]
+    data = data.json()["response"] # we must re-think this, this field cannot exist
 
     response = [
         tuple(game.get(field, None) for field in fields) for game in data['games']
     ]
+
+    return response
+
+def GetUserFriends(token: int, steamId: int):
+    fields = dictionary.Endpoints['get_user_friends']
+    database=Database()
+    endpoint_array = database.select_from_table('endpoints', ['url'], 'name = "GetFriendList"')
+    endpoint_url = endpoint_array[0][0]
+    data = requests.get(f"{endpoint_url}?key={token}&steamid={steamId}")
+    
+    if(not data.ok):
+        error("Error getting user friends")
+        return
+    
+    data = data.json()["friendslist"] # we must re-think this, this field cannot exist
+
+    response = [
+        tuple(friend.get(field, None) for field in fields) for friend in data['friends']
+    ]
+
     return response
 
 # Games list (maybe in the future...)
 # def GetGamesList(dlc: bool = False, maxResults: int = 10000):
 #     token = os.environ["TOKEN"]
-    
 
 # Game news
 def GetNewsForApp(appId: str, count:str = "3", maxLength:str = "300", format:str = "json", displayNews:bool = True):
@@ -84,19 +101,6 @@ def GetNewsForApp(appId: str, count:str = "3", maxLength:str = "300", format:str
         for new in newsitems:
             print(new["title"])
     return appnews
-
-def GetUserFriends():
-    token = os.environ["TOKEN"]
-    steamId = os.environ["STEAM_ID"]
-    endpoint_url = utils.getEndpoint("GetFriendList")
-    data = requests.get(f"{endpoint_url}?key={token}&steamid={steamId}")
-    
-    if(not data.ok):
-        error("Error getting user friends")
-        return
-    
-    # print(json.dumps(data.json(), indent=4))
-    return data.json()["friendslist"]
 
 def GetPlayerSummaries(steamId: int):
     token = os.environ["TOKEN"]
