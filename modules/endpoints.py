@@ -7,7 +7,7 @@ from modules.database import Database
 import modules.dictionary as dictionary
 
 
-# API List
+# API List (WE MUST REMOVE THIS FUNCTION)
 def GetApiList(basePath: str, token: str = ""):
     key =""
     if(token != ""):
@@ -19,7 +19,8 @@ def GetApiList(basePath: str, token: str = ""):
         return
     return data.json()
 
-# API List
+# INIT FUNCTIONS
+# Save data but don't display information
 def GetApiEndpoints(token: int, base_path: str):
     url = f"{base_path}/ISteamWebAPIUtil/GetSupportedAPIList/v0001/?key={token}"
     response = requests.get(url)
@@ -87,6 +88,8 @@ def GetUserFriends(token: int, steamId: int):
 #     token = os.environ["TOKEN"]
 
 # Game news
+# GENERAL FUNCTIONS
+# Don't save data but display information
 def GetNewsForApp(appId: str, count:str = "3", maxLength:str = "300", format:str = "json", displayNews:bool = True):
     endpoint_url = utils.getEndpoint("GetNewsForApp")
     data = requests.get(f"{endpoint_url}?appid={appId}&count={count}&maxlength={maxLength}&format={format}")
@@ -111,7 +114,6 @@ def GetPlayerSummaries(steamId: int):
         print(data)
         return 
     
-    # print(json.dumps(data.json(), indent=4))
     return data.json()["response"]
 
 def GetAchivements(appId: int, steamId: int):

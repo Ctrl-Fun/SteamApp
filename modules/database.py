@@ -105,7 +105,7 @@ class Database:
                 cursor.close()
                 db.close()
 
-    def select_from_table(self, table, columns=None, where_clause=None):
+    def select_from_table(self, table, columns=None, where_clause=None, order_by=None, limit=None):
         if not self.table_exists(table):
             error(f"Table '{table}' does not exist")
             return None
@@ -121,7 +121,13 @@ class Database:
                 query = f"SELECT {columns} FROM `{table}`"
                 if where_clause:
                     query += f" WHERE {where_clause}"
-                
+
+                if order_by:
+                    query += f" ORDER BY {order_by}"
+
+                if limit:
+                    query += f" LIMIT {limit}"
+
                 # Ejecutar consulta
                 cursor.execute(query)
                 return cursor.fetchall()
