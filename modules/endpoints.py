@@ -115,6 +115,7 @@ def GetPlayerSummaries(steamId: int):
         return 
     
     return data.json()["response"]
+    # return data.json()["response"]
 
 def GetAchivements(appId: int, steamId: int):
     token = os.environ["TOKEN"]
