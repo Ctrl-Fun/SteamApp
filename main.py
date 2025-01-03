@@ -35,7 +35,8 @@ def GetNewsForApp():
     # userName =  endpoints.GetPlayerSummaries(steamId=steamId)["players"][0]["personaname"]
     # print(colors.boldPurple+userName+colors.End)
     # print(steamId)
-    # userGames = endpoints.GetUserGames(steamId=steamId)
+# userGames = endpoints.GetFamilyGames()
+# print(userGames)
     # if(userGames):
     #     for i in range(userGames["game_count"]):
     #         print(userGames["games"][i]["name"])

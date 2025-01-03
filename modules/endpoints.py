@@ -64,6 +64,28 @@ def GetUserGames(token: int, steamId: int, appInfo:bool = True, freeGames: bool 
 
     return response
 
+
+def GetFamilyGames(web_api_token: int):
+# def GetUserGames(token: int, steamId: int, appInfo:bool = True, freeGames: bool = True, freeSub: bool = True, SkipUnvettedApps: bool = False, language: str = "Spanish", extendedInfo: bool = True):
+    fields = dictionary.Endpoints['get_family_games']
+    # database=Database()
+    # endpoint_array = database.select_from_table('endpoints', ['url'], 'name = "GetOwnedGames"')
+    # endpoint_url = endpoint_array[0][0]
+    data = requests.get(f"https://api.steampowered.com/IFamilyGroupsService/GetSharedLibraryApps/v1/?access_token={web_api_token}&family_groupid=0&include_own=true&include_excluded=true&include_free=true&include_non_games=false")
+    # data = requests.get(f"{endpoint_url}?key={token}&steamid={steamId}&include_appinfo={appInfo}&include_played_free_games={freeGames}&skip_unvetted_apps={SkipUnvettedApps}&language={language}&include_extended_appinfo={extendedInfo}")
+    
+    if(not data.ok):
+        error("Error getting user games information")
+        return
+    
+    data = data.json()['response'] # we must re-think this, this field cannot exist
+    response = [
+        tuple(game.get(field, None) for field in fields) for game in data['apps']
+    ]
+
+    return response
+
+
 def GetUserFriends(token: int, steamId: int):
     fields = dictionary.Endpoints['get_user_friends']
     database=Database()

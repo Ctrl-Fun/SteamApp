@@ -4,8 +4,10 @@ import modules.ui as ui
 ### STARTING APP
 Init()
 
-ui.top_games()
+# ui.top_games()
 
 # endpoints.GetPlayerSummaries(76561198087748623)
 
-ui.user_friends()
+# ui.user_friends()
+
+

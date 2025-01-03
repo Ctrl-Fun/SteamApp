@@ -15,10 +15,11 @@ class Init():
         TOKEN = os.getenv("TOKEN")
         BASE_PATH = os.getenv("BASE_PATH")
         STEAM_ID = os.getenv("STEAM_ID")
+        WEB_API_TOKEN = os.getenv("WEB_API_TOKEN")
         database=Database()
 
         # Get and Save All Endpoints Info
-        self.load_endpoints(database, TOKEN, BASE_PATH)
+        self.load_endpoints(database, TOKEN, BASE_PATH, WEB_API_TOKEN)
 
         # Get and Save all User Games Info
         self.load_user_games(database, TOKEN, STEAM_ID)
@@ -26,10 +27,11 @@ class Init():
         # Get and Save all User Friends Info
         self.load_user_friends(database, TOKEN, STEAM_ID)
 
+
         success("Data loaded successfully")
 
 
-    def load_endpoints(self, database : Database, TOKEN: str, BASE_PATH: str):
+    def load_endpoints(self, database : Database, TOKEN: str, BASE_PATH: str, WEB_API_TOKEN: str):
         table_name = "endpoints"
         table_data = dictionary.Database['endpoints']
 
@@ -41,6 +43,9 @@ class Init():
         if(rows_count == 0):
             table_content = endpoints.GetApiEndpoints(TOKEN, BASE_PATH)
             database.fill_table(table_name, table_data, table_content)
+            family_games = endpoints.GetFamilyGames(web_api_token=WEB_API_TOKEN)
+            print(family_games)
+
 
     def load_user_games(self, database : Database, TOKEN: str, STEAM_ID: str):
         table_name = "user_games"

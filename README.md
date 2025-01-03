@@ -8,6 +8,9 @@ DB_NAME=steamapp
 DB_PASSWORD=steamapp
 DB_HOST=localhost
 TOKEN=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+WEB_API_TOKEN=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 BASE_PATH=http://api.steampowered.com
 STEAM_ID=76561198821036955
 ```
+
+Para obtener el WEB_API_TOKEN iniciar sesión en steam en un navegador y usar:  https://store.steampowered.com/pointssummary/ajaxgetasyncconfig

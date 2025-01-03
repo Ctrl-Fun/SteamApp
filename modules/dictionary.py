@@ -49,5 +49,15 @@ Endpoints = {
         'steamid',
         'relationship',
         'friend_since'
+    ],
+    'get_family_games': [
+        # 'appid',
+        # 'owner_steamids',
+        'name',
+        # 'capsule_filename',
+        # 'img_icon_hash',
+        # 'rt_time_acquired',
+        # 'rt_last_played',
+        # 'rt_playtime'
     ]
 }
