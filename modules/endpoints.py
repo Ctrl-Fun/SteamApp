@@ -64,7 +64,6 @@ def GetUserGames(token: int, steamId: int, appInfo:bool = True, freeGames: bool 
 
     return response
 
-
 def GetFamilyGames(web_api_token: int, freeGames: bool = True):
     fields = dictionary.Endpoints['get_family_games']
     database=Database()
@@ -82,7 +81,6 @@ def GetFamilyGames(web_api_token: int, freeGames: bool = True):
         tuple(game.get(field, None) for field in fields) for game in data['apps']
     ]
     return response
-
 
 def GetUserFriends(token: int, steamId: int):
     fields = dictionary.Endpoints['get_user_friends']

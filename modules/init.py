@@ -45,8 +45,6 @@ class Init():
             database.fill_table(table_name, table_data, table_content)
             familyGamesEndpoint = [("GetSharedLibraryApps","https://api.steampowered.com/IFamilyGroupsService/GetSharedLibraryApps/v1/")]
             database.fill_table(table_name, table_data, familyGamesEndpoint, update=True)
-            # family_games = endpoints.GetFamilyGames(web_api_token=WEB_API_TOKEN)
-            # print(family_games)
 
 
     def load_user_games(self, database : Database, TOKEN: str, STEAM_ID: str, WEB_API_TOKEN: str):
