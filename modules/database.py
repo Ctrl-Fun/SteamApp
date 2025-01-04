@@ -69,7 +69,7 @@ class Database:
                 db.close()
 
 
-    def fill_table(self, table, table_structure, table_data):
+    def fill_table(self, table, table_structure, table_data, update = False):
         if not self.table_exists(table):
             error(f"Table '{table}' does not exist")
             return
@@ -89,10 +89,9 @@ class Database:
             try:
                 cursor = db.cursor()
                 cursor.execute(f"SELECT COUNT(*) FROM `{table}`")
-                if cursor.fetchone()[0] > 0:
+                if cursor.fetchone()[0] > 0 and not update:
                     success(f"Table '{table}' already filled")
                     return
-                
                 columns = ", ".join(col[0] for col in table_structure)
                 placeholders = ", ".join(["%s"] * len(table_structure))
                 sql = f"INSERT INTO `{table}` ({columns}) VALUES ({placeholders})"

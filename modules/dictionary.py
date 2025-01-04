@@ -20,6 +20,16 @@ Database = {
         ["has_dlc", "BOOLEAN"],
         ["playtime_disconnected", "INTEGER"]
     ],
+    'family_games': [
+        ["appid", "INTEGER"],
+        ["owner_steamids", "INTEGER"],
+        ["name", "VARCHAR(255)"],
+        ["capsule_filename", "VARCHAR(255)"],
+        ["img_icon_hash", "VARCHAR(255)"],
+        ["rt_time_acquired", "INTEGER"],
+        ["rt_last_played", "INTEGER"],
+        ["rt_playtime", "INTEGER"]
+    ],
     'user_friends': [
         ["steamid", "BIGINT"],
         ["relationship", "VARCHAR(255)"],
@@ -51,13 +61,13 @@ Endpoints = {
         'friend_since'
     ],
     'get_family_games': [
-        # 'appid',
-        # 'owner_steamids',
+        'appid',
+        'owner_steamids',
         'name',
-        # 'capsule_filename',
-        # 'img_icon_hash',
-        # 'rt_time_acquired',
-        # 'rt_last_played',
-        # 'rt_playtime'
+        'capsule_filename',
+        'img_icon_hash',
+        'rt_time_acquired',
+        'rt_last_played',
+        'rt_playtime'
     ]
 }
