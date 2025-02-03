@@ -58,6 +58,3 @@ def ApiMethodsList(publicFilePath: str, privateFilePath: str):
             data["private"][intName] = methodArr
 
     saveJSON(data, "interfacesAndMethods.json")
-    
-
-

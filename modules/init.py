@@ -15,14 +15,13 @@ class Init():
         TOKEN = os.getenv("TOKEN")
         BASE_PATH = os.getenv("BASE_PATH")
         STEAM_ID = os.getenv("STEAM_ID")
-        WEB_API_TOKEN = os.getenv("WEB_API_TOKEN")
         database=Database()
 
         # Get and Save All Endpoints Info
         self.load_endpoints(database, TOKEN, BASE_PATH)
 
         # Get and Save all User Games Info
-        self.load_user_games(database, TOKEN, STEAM_ID, WEB_API_TOKEN)
+        self.load_user_games(database, TOKEN, STEAM_ID)
 
         # Get and Save all User Friends Info
         self.load_user_friends(database, TOKEN, STEAM_ID)
@@ -40,17 +39,23 @@ class Init():
             database.create_table(table_name, table_data)
 
         rows_count = database.is_table_filled(table_name)
+        endpoint_array = database.select_from_table('endpoints', ['url'], 'name = "GetSharedLibraryApps"')
+
         if(rows_count == 0):
             table_content = endpoints.GetApiEndpoints(TOKEN, BASE_PATH)
             database.fill_table(table_name, table_data, table_content)
             familyGamesEndpoint = [("GetSharedLibraryApps","https://api.steampowered.com/IFamilyGroupsService/GetSharedLibraryApps/v1/")]
             database.fill_table(table_name, table_data, familyGamesEndpoint)
+        elif(not endpoint_array):
+            familyGamesEndpoint = [("GetSharedLibraryApps","https://api.steampowered.com/IFamilyGroupsService/GetSharedLibraryApps/v1/")]
+            database.fill_table(table_name, table_data, familyGamesEndpoint)
 
 
-    def load_user_games(self, database : Database, TOKEN: str, STEAM_ID: str, WEB_API_TOKEN: str):
-        table_content = endpoints.GetFamilyGames()
+    def load_user_games(self, database : Database, TOKEN: str, STEAM_ID: str):
+        # table_content = endpoints.GetFamilyGames()
+        table_content = None
         if(table_content != None):
-            print("family games")
+            # print("family games")
             table_name = "family_games"
             table_data = dictionary.Database['family_games']
             tableExist = database.table_exists(table_name)
@@ -60,7 +65,7 @@ class Init():
             if(rows_count == 0):
                 database.fill_table(table_name, table_data, table_content)
         else:
-            print("user games")
+            # print("user games")
             table_name = "user_games"
             table_data = dictionary.Database['user_games']
             tableExist = database.table_exists(table_name)
