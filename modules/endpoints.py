@@ -64,23 +64,36 @@ def GetUserGames(token: int, steamId: int, appInfo:bool = True, freeGames: bool 
 
     return response
 
-def GetFamilyGames(web_api_token: int, freeGames: bool = True):
+def GetFamilyGames(freeGames: bool = True):
     fields = dictionary.Endpoints['get_family_games']
     database=Database()
     endpoint_array = database.select_from_table('endpoints', ['url'], 'name = "GetSharedLibraryApps"')
-    endpoint_url = endpoint_array[0][0]
-    data = requests.get(f"{endpoint_url}?access_token={web_api_token}&family_groupid=0&include_own=true&include_excluded=true&include_free={freeGames}&include_non_games=false")
-    print(f"{endpoint_url}?access_token={web_api_token}&family_groupid=0&include_own=true&include_excluded=true&include_free={str(freeGames).lower()}&include_non_games=false")
+    try:
+        endpoint_url = endpoint_array[0][0]
+        web_api_token = input("Introduce tu token temporal de la web api (Si NO deseas ver los juegos de tu familia pulsa ENTER sin escribir nada): ")
+
+        if(web_api_token == ""):
+            return
+        
+        data = requests.get(f"{endpoint_url}?access_token={web_api_token}&family_groupid=0&include_own=true&include_excluded=true&include_free={freeGames}&include_non_games=false")
+
+        if(data.status_code == 401):
+            error("Error getting family games information: Unauthorized")
+            return
+
+        if(not data.ok):
+            error("Error getting family games information")
+            return
+        
+        data = data.json()['response'] # we must re-think this, this field cannot exist
+        response = [
+            tuple(game.get(field, None) for field in fields) for game in data['apps']
+        ]
+        return response
     
-    if(not data.ok):
-        error("Error getting family games information")
+    except Exception as e:
+        error("Error getting family games information: "+str(e))
         return
-    
-    data = data.json()['response'] # we must re-think this, this field cannot exist
-    response = [
-        tuple(game.get(field, None) for field in fields) for game in data['apps']
-    ]
-    return response
 
 def GetUserFriends(token: int, steamId: int):
     fields = dictionary.Endpoints['get_user_friends']

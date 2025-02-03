@@ -9,5 +9,3 @@ Init()
 # endpoints.GetPlayerSummaries(76561198087748623)
 
 # ui.user_friends()
-
-
