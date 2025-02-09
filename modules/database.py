@@ -19,6 +19,10 @@ class Database:
             return None
 
     def table_exists(self, table_name):
+        if not isinstance(table_name, str):
+            error("Table name must be a string")
+            return False
+
         db = self.get_connection()
         if db:
             try:
@@ -62,7 +66,9 @@ class Database:
                 sql = f"CREATE TABLE `{table}` (id INT AUTO_INCREMENT PRIMARY KEY, {columns})"
                 cursor.execute(sql)
                 success(f"Table '{table}' created")
-            except mysql.connector.Error as e:
+            except mysql.connector.errors.ProgrammingError as e:
+                error(f"Error in syntax '{table}': {e}")
+            except Exception as e:
                 error(f"Error creating table '{table}': {e}")
             finally:
                 cursor.close()

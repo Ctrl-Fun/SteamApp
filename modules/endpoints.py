@@ -121,6 +121,7 @@ def GetUserFriends(token: int, steamId: int):
 # Game news
 # GENERAL FUNCTIONS
 # Don't save data but display information
+
 def GetNewsForApp(appId: str, count:str = "3", maxLength:str = "300", format:str = "json", displayNews:bool = True):
     endpoint_url = utils.getEndpoint("GetNewsForApp")
     data = requests.get(f"{endpoint_url}?appid={appId}&count={count}&maxlength={maxLength}&format={format}")
