@@ -68,11 +68,32 @@ class Database:
                 success(f"Table '{table}' created")
             except mysql.connector.errors.ProgrammingError as e:
                 error(f"Error in syntax '{table}': {e}")
+                return False
             except Exception as e:
                 error(f"Error creating table '{table}': {e}")
+                return False
             finally:
                 cursor.close()
                 db.close()
+
+    def delete_table(self, table_name):
+        if not self.table_exists(table_name):
+            success("Table not exists already")
+        
+        db = self.get_connection()
+        if db:
+            try:
+                cursor = db.cursor()
+                sql = f"DROP TABLE `{table_name}`"
+                cursor.execute(sql)
+                success(f"Table '{table_name}' deleted")
+            except Exception as e:
+                error(f"Error deleting table '{table_name}': {e}")
+                return False
+            finally:
+                cursor.close()
+                db.close()
+                
 
 
     def fill_table(self, table_name, table_data):
@@ -84,12 +105,6 @@ class Database:
             error("Table data must be a list")
             return False
 
-        # Verificar que cada elemento es una tupla
-        for item in table_data:
-            if not isinstance(item, tuple):
-                error("Table data must be a list of tuples")
-                return False
-        
         db = self.get_connection()
         if db:
             try:
@@ -104,15 +119,13 @@ class Database:
                     return False
                 
                 columns = ", ".join(columns_structure)
-                print(columns)
-
-                print(table_data)
 
                 placeholders = ", ".join(["%s"] * len(columns_structure))
-                print(placeholders)
                 sql = f"INSERT INTO `{table_name}` ({columns}) VALUES ({placeholders})"
-                print(columns)
-                cursor.executemany(sql, table_data)
+                if(len(table_data)==1):
+                    cursor.execute(sql, table_data)
+                else:
+                    cursor.executemany(sql, table_data)
                 db.commit()
                 success(f"Rows inserted into '{table_name}'")
             except mysql.connector.Error as e:

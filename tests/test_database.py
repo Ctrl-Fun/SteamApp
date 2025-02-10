@@ -33,12 +33,20 @@ class TestDatabase(unittest.TestCase):
         # test create table two times
         db.create_table("creating_table", [["name", "VARCHAR(255)"]])
 
+    def test_delete_table(self):
+        db = Database()
+
+        # test deleting existent table
+        db.create_table("delete_table", [["name", "INT"]])
+        db.delete_table("delete_table")
+        self.assertFalse(db.table_exists("delete_table"))
+
     def test_fill_table(self):
         db = Database()
         # test fill empty table
         db.create_table("filling_table", [["name", "VARCHAR(255)"]])
-        familyGamesEndpoint = [("TestJuan","https://api.steampowered.com/TestJuan/")]
-        db.fill_table("endpoints", familyGamesEndpoint)
+        familyGamesEndpoint = [("TestJuan")]
+        db.fill_table("filling_table", familyGamesEndpoint)
         # test fill not empty table
 
         # test fill not existing table
