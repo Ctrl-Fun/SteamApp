@@ -75,9 +75,9 @@ class Database:
                 db.close()
 
 
-    def fill_table(self, table, table_structure, table_data):
-        if not self.table_exists(table):
-            error(f"Table '{table}' does not exist")
+    def fill_table(self, table_name, table_data):
+        if not self.table_exists(table_name):
+            error(f"Table '{table_name}' does not exist")
             return
         
         if not isinstance(table_data, list):
@@ -93,15 +93,31 @@ class Database:
         db = self.get_connection()
         if db:
             try:
+                # Retrieve data columns
                 cursor = db.cursor()
-                columns = ", ".join(col[0] for col in table_structure)
-                placeholders = ", ".join(["%s"] * len(table_structure))
-                sql = f"INSERT INTO `{table}` ({columns}) VALUES ({placeholders})"
+                sql = f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}'"
+                cursor.execute(sql)
+                columns_structure = [row[0] for row in cursor.fetchall()[1:]] # IMPORTANT: Exclude 'id' column      
+
+                if not columns_structure:
+                    error(f"Could not retrieve columns for '{table_name}'")
+                    return False
+                
+                columns = ", ".join(columns_structure)
+                print(columns)
+
+                print(table_data)
+
+                placeholders = ", ".join(["%s"] * len(columns_structure))
+                print(placeholders)
+                sql = f"INSERT INTO `{table_name}` ({columns}) VALUES ({placeholders})"
+                print(columns)
                 cursor.executemany(sql, table_data)
                 db.commit()
-                success(f"Rows inserted into '{table}'")
+                success(f"Rows inserted into '{table_name}'")
             except mysql.connector.Error as e:
-                error(f"Error filling table '{table}': {e}")
+                error(f"Error filling table '{table_name}': {e}")
+                return False
             finally:
                 cursor.close()
                 db.close()

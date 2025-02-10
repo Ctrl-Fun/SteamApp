@@ -43,12 +43,12 @@ class Init():
 
         if(rows_count == 0):
             table_content = endpoints.GetApiEndpoints(TOKEN, BASE_PATH)
-            database.fill_table(table_name, table_data, table_content)
+            database.fill_table(table_name, table_content)
             familyGamesEndpoint = [("GetSharedLibraryApps","https://api.steampowered.com/IFamilyGroupsService/GetSharedLibraryApps/v1/")]
-            database.fill_table(table_name, table_data, familyGamesEndpoint)
+            database.fill_table(table_name, familyGamesEndpoint)
         elif(not endpoint_array):
             familyGamesEndpoint = [("GetSharedLibraryApps","https://api.steampowered.com/IFamilyGroupsService/GetSharedLibraryApps/v1/")]
-            database.fill_table(table_name, table_data, familyGamesEndpoint)
+            database.fill_table(table_name, familyGamesEndpoint)
 
 
     def load_user_games(self, database : Database, TOKEN: str, STEAM_ID: str):
@@ -63,7 +63,7 @@ class Init():
                 database.create_table(table_name, table_data)
             rows_count = database.is_table_filled(table_name)
             if(rows_count == 0):
-                database.fill_table(table_name, table_data, table_content)
+                database.fill_table(table_name, table_content)
         else:
             # print("user games")
             table_name = "user_games"
@@ -75,7 +75,7 @@ class Init():
             rows_count = database.is_table_filled(table_name)
             if(rows_count == 0):
                 table_content = endpoints.GetUserGames(token=TOKEN,steamId=STEAM_ID)
-                database.fill_table(table_name, table_data, table_content)
+                database.fill_table(table_name, table_content)
 
     def load_user_friends(self, database : Database, TOKEN: str, STEAM_ID: str):
         table_name = "user_friends"
@@ -87,4 +87,4 @@ class Init():
         rows_count = database.is_table_filled(table_name)
         if(rows_count == 0):
             table_content = endpoints.GetUserFriends(token=TOKEN,steamId=STEAM_ID)
-            database.fill_table(table_name, table_data, table_content)
+            database.fill_table(table_name, table_content)
