@@ -2,6 +2,12 @@ import os
 import mysql.connector
 from modules.logging import error, success
 
+class ReturnData:
+    def __init__(self, status = False, content = None):
+        self.status = status
+        self.content = content
+
+
 class Database:
     def __init__(self) -> None:
         self.db_config = {
@@ -11,28 +17,40 @@ class Database:
             "host": os.getenv("DB_HOST"),
         }
 
+
     def get_connection(self):
+        return_data = ReturnData() 
         try:
-            return mysql.connector.connect(**self.db_config)
+            connection = mysql.connector.connect(**self.db_config)
+            return_data.status = True
+            return_data.content = connection
+            return return_data
         except mysql.connector.Error as e:
             error(f"Database connection error: {e}")
-            return None
+            return return_data
 
     def table_exists(self, table_name):
+        return_data = ReturnData()
+
         if not isinstance(table_name, str):
             error("Table name must be a string")
-            return False
+            return return_data
 
-        db = self.get_connection()
+        db = self.get_connection().content
         if db:
             try:
                 cursor = db.cursor()
                 cursor.execute("SHOW TABLES LIKE %s", (table_name,))
-                return cursor.fetchone() is not None
+                result = cursor.fetchone() is not None
+                return_data.status = True
+                return_data.content = result
+                return return_data
+            except Exception as e:
+                error(f"Error reading table '{table_name}': {e}")
+                return return_data
             finally:
                 cursor.close()
                 db.close()
-        return False
     
     def is_table_filled(self, table_name):
         if not self.table_exists(table_name):
@@ -56,7 +74,7 @@ class Database:
     def create_table(self, table, table_structure):
         if self.table_exists(table):
             success("Table already exists")
-            return
+            return True, None
         
         db = self.get_connection()
         if db:
@@ -79,6 +97,7 @@ class Database:
     def delete_table(self, table_name):
         if not self.table_exists(table_name):
             success("Table not exists already")
+            return
         
         db = self.get_connection()
         if db:
@@ -99,7 +118,7 @@ class Database:
     def fill_table(self, table_name, table_data):
         if not self.table_exists(table_name):
             error(f"Table '{table_name}' does not exist")
-            return
+            return False
         
         if not isinstance(table_data, list):
             error("Table data must be a list")
