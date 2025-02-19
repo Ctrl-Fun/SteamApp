@@ -19,35 +19,29 @@ class Database:
 
 
     def get_connection(self):
-        return_data = ReturnData() 
         try:
-            connection = mysql.connector.connect(**self.db_config)
-            return_data.status = True
-            return_data.content = connection
-            return return_data
+            return mysql.connector.connect(**self.db_config)
         except mysql.connector.Error as e:
             error(f"Database connection error: {e}")
-            return return_data
+            return ReturnData(status=False,content=str(e))
 
     def table_exists(self, table_name):
-        return_data = ReturnData()
 
         if not isinstance(table_name, str):
-            error("Table name must be a string")
-            return return_data
+            response = "Table name must be a string"
+            error(response)
+            return ReturnData(status=False,content=response)
 
-        db = self.get_connection().content
+        db = self.get_connection()
         if db:
             try:
                 cursor = db.cursor()
                 cursor.execute("SHOW TABLES LIKE %s", (table_name,))
                 result = cursor.fetchone() is not None
-                return_data.status = True
-                return_data.content = result
-                return return_data
+                return ReturnData(status=True,content=result)
             except Exception as e:
                 error(f"Error reading table '{table_name}': {e}")
-                return return_data
+                return ReturnData(status=False,content=str(e))
             finally:
                 cursor.close()
                 db.close()
@@ -72,9 +66,12 @@ class Database:
                 db.close()
 
     def create_table(self, table, table_structure):
-        if self.table_exists(table):
-            success("Table already exists")
-            return True, None
+
+        response = self.table_exists(table)
+        if response.status and response.content:
+            response = "Table already exists"
+            success(response)
+            return ReturnData(status=True,content=response)
         
         db = self.get_connection()
         if db:
@@ -84,14 +81,16 @@ class Database:
                 sql = f"CREATE TABLE `{table}` (id INT AUTO_INCREMENT PRIMARY KEY, {columns})"
                 cursor.execute(sql)
                 success(f"Table '{table}' created")
+                return ReturnData(status=True,content=True)
             except mysql.connector.errors.ProgrammingError as e:
                 error(f"Error in syntax '{table}': {e}")
-                return False
+                return ReturnData(status=False,content=str(e))
             except Exception as e:
                 error(f"Error creating table '{table}': {e}")
-                return False
+                return ReturnData(status=False,content=str(e))
             finally:
-                cursor.close()
+                if cursor:
+                    cursor.close()
                 db.close()
 
     def delete_table(self, table_name):

@@ -13,8 +13,7 @@ class TestDatabase(unittest.TestCase):
         db = Database()
         # chequeamos que tabla existe
         data = db.table_exists("user_friends")
-        self.assertTrue(data.status)
-        self.assertTrue(data.content)
+        self.assertTrue(data.status and data.content)
         # chequeamos que tabla no existe
         data = db.table_exists("non_existent_table")
         self.assertTrue(data.status)
@@ -23,20 +22,31 @@ class TestDatabase(unittest.TestCase):
         data = db.table_exists(1)
         self.assertFalse(data.status)
 
+
 ###################################################################################################################################
 
     def test_create_table(self):
         db = Database()
         # test not create table
-        db.create_table("not_creating_table", [])
-        value = db.table_exists("not_creating_table")
-        self.assertIsNotNone(value)
-        self.assertFalse(value)
+        response = db.create_table("not_creating_table", [])
+        self.assertFalse(response.status)
+        response = db.table_exists("not_creating_table")
+        self.assertTrue(response.status) # not exist running error
+        self.assertFalse(response.content) # but the result of the function is false
         # test create table
-        db.create_table("creating_table", [["name", "VARCHAR(255)"]])
-        self.assertTrue(db.table_exists("creating_table"))
+        # use deletetable here to ensure there is not existent table
+        db.delete_table("creating_table")
+        response = db.create_table("creating_table", [["name", "VARCHAR(255)"]])
+        self.assertTrue(response.status and response.content)
+        response = db.table_exists("creating_table")
+        self.assertTrue(response.status and response.content)
+
         # test create table two times
-        db.create_table("creating_table", [["name", "VARCHAR(255)"]])
+        db.delete_table("creating_table")
+        db.create_table("creating_table", [["name", "INT"]])
+        response = db.create_table("creating_table", [["name", "VARCHAR(255)"]])
+        self.assertTrue(response.status)
+        self.assertFalse(response.content)
 
     def test_is_table_filled(self): # before test this function, requires create_table, fill_table, delete_table
         db = Database()
