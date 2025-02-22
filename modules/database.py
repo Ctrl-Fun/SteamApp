@@ -26,7 +26,6 @@ class Database:
             return ReturnData(status=False,content=str(e))
 
     def table_exists(self, table_name):
-
         if not isinstance(table_name, str):
             response = "Table name must be a string"
             error(response)
@@ -48,8 +47,9 @@ class Database:
     
     def is_table_filled(self, table_name):
         if not self.table_exists(table_name):
-            error(f"Table '{table_name}' does not exist")
-            return False  # O retornar 0 si prefieres.
+            response = f"Table '{table_name}' does not exist"
+            error(response)
+            return ReturnData(status=False, content=response)  # O retornar 0 si prefieres.
 
         db = self.get_connection()
         if db:
@@ -57,21 +57,20 @@ class Database:
                 cursor = db.cursor()
                 cursor.execute(f"SELECT COUNT(*) FROM `{table_name}`")
                 row_count = cursor.fetchone()[0]
-                return row_count > 0  # Devuelve True si tiene filas, False si está vacía.
+                value = row_count > 0 # Devuelve True si tiene filas, False si está vacía.
+                return ReturnData(status=True, content=value)
             except mysql.connector.Error as e:
                 error(f"Error checking rows in table '{table_name}': {e}")
-                return False
+                return ReturnData(status=False,content=str(e))
             finally:
                 cursor.close()
                 db.close()
 
     def create_table(self, table, table_structure):
-
         response = self.table_exists(table)
         if response.status and response.content:
-            response = "Table already exists"
-            success(response)
-            return ReturnData(status=True,content=response)
+            success("Table already exists")
+            return ReturnData(status=True,content=False)
         
         db = self.get_connection()
         if db:
@@ -96,7 +95,7 @@ class Database:
     def delete_table(self, table_name):
         if not self.table_exists(table_name):
             success("Table not exists already")
-            return
+            return ReturnData(status=True,content=False)
         
         db = self.get_connection()
         if db:
@@ -105,23 +104,30 @@ class Database:
                 sql = f"DROP TABLE `{table_name}`"
                 cursor.execute(sql)
                 success(f"Table '{table_name}' deleted")
+                return ReturnData(status=True,content=True)
             except Exception as e:
                 error(f"Error deleting table '{table_name}': {e}")
-                return False
+                return ReturnData(status=False,content=str(e))
             finally:
                 cursor.close()
                 db.close()
-                
 
 
     def fill_table(self, table_name, table_data):
         if not self.table_exists(table_name):
-            error(f"Table '{table_name}' does not exist")
-            return False
+            response = f"Table '{table_name}' does not exist" 
+            error(response)
+            return ReturnData(status=False,content=response)
         
         if not isinstance(table_data, list):
-            error("Table data must be a list")
-            return False
+            response = "Table must be a list of list elements, parent error" 
+            error(response)
+            return ReturnData(status=False,content=response)
+        
+        if not all(isinstance(e,list) for e in table_data):
+            response = "Table must be a list of tuples, chilren error"
+            error(response)
+            return ReturnData(status=False,content=response) 
 
         db = self.get_connection()
         if db:
@@ -133,22 +139,25 @@ class Database:
                 columns_structure = [row[0] for row in cursor.fetchall()[1:]] # IMPORTANT: Exclude 'id' column      
 
                 if not columns_structure:
-                    error(f"Could not retrieve columns for '{table_name}'")
-                    return False
+                    response = f"Could not retrieve columns for '{table_name}'"
+                    error(response)
+                    return ReturnData(status=False,content=response)
                 
                 columns = ", ".join(columns_structure)
 
                 placeholders = ", ".join(["%s"] * len(columns_structure))
                 sql = f"INSERT INTO `{table_name}` ({columns}) VALUES ({placeholders})"
                 if(len(table_data)==1):
-                    cursor.execute(sql, table_data)
+                    print(table_data)
+                    cursor.execute(sql, table_data[0])
                 else:
                     cursor.executemany(sql, table_data)
                 db.commit()
                 success(f"Rows inserted into '{table_name}'")
+                return ReturnData(status=True,content=True)
             except mysql.connector.Error as e:
                 error(f"Error filling table '{table_name}': {e}")
-                return False
+                return ReturnData(status=False,content=str(e))
             finally:
                 cursor.close()
                 db.close()
@@ -185,46 +194,3 @@ class Database:
                 cursor.close()
                 db.close()
         return None
-
-    
-    ################### DE AQUI PARA ABAJO A BORRAR!
-
-    def games(self):
-        db = self.db
-    # Games database 
-        if(db):
-            cursor = db.cursor()
-            cursor.execute("""
-                SHOW TABLES
-            """)
-            resultado = cursor.fetchall()
-            tables = [item[0] for item in resultado]
-            print(tables)
-            if("games" in tables):
-                cursor.execute("SELECT COUNT(*) FROM games;")
-                resultado = cursor.fetchone()
-                print(resultado[0]) 
-                if(resultado[0] <= 0):
-                    print("filling table...")
-                    sql = "INSERT INTO games (name, gameId) VALUES (%s, %s)"
-                    val = [
-                        ('Peter', 'Lowstreet 4'),
-                        ('Amy', 'Apple st 652'),
-                        ('Hannah', 'Mountain 21'),
-                        ('Michael', 'Valley 345'),
-                        ('Sandy', 'Ocean blvd 2'),
-                        ('Betty', 'Green Grass 1'),
-                        ('Richard', 'Sky st 331'),
-                        ('Susan', 'One way 98'),
-                        ('Vicky', 'Yellow Garden 2'),
-                        ('Ben', 'Park Lane 38'),
-                        ('William', 'Central st 954'),
-                        ('Chuck', 'Main Road 989'),
-                        ('Viola', 'Sideway 1633')
-                        ]
-                    cursor.executemany(sql, val) 
-                    db.commit()
-            else:
-                cursor.execute("CREATE TABLE games (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), gameId VARCHAR(255))")
-        else:
-            error("Error in request")

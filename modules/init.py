@@ -44,16 +44,16 @@ class Init():
         if(rows_count == 0):
             table_content = endpoints.GetApiEndpoints(TOKEN, BASE_PATH)
             database.fill_table(table_name, table_content)
-            familyGamesEndpoint = [("GetSharedLibraryApps","https://api.steampowered.com/IFamilyGroupsService/GetSharedLibraryApps/v1/")]
+            familyGamesEndpoint = [["GetSharedLibraryApps","https://api.steampowered.com/IFamilyGroupsService/GetSharedLibraryApps/v1/"]]
             database.fill_table(table_name, familyGamesEndpoint)
         elif(not endpoint_array):
-            familyGamesEndpoint = [("GetSharedLibraryApps","https://api.steampowered.com/IFamilyGroupsService/GetSharedLibraryApps/v1/")]
+            familyGamesEndpoint = [["GetSharedLibraryApps","https://api.steampowered.com/IFamilyGroupsService/GetSharedLibraryApps/v1/"]]
             database.fill_table(table_name, familyGamesEndpoint)
 
 
     def load_user_games(self, database : Database, TOKEN: str, STEAM_ID: str):
         # table_content = endpoints.GetFamilyGames()
-        table_content = None
+        table_content = None # Bypass family games, endpoint not official suported by steam
         if(table_content != None):
             # print("family games")
             table_name = "family_games"

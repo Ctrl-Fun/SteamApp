@@ -40,7 +40,7 @@ def GetApiEndpoints(token: int, base_path: str):
             version = method['version']
             # Construir la ruta del endpoint
             endpoint = f"{base_path}/{intName}/{methodName}/v{version}/"
-            result = (methodName, endpoint)
+            result = [methodName, endpoint]
         
             endpoints.append(result)
     return(endpoints)
@@ -59,7 +59,7 @@ def GetUserGames(token: int, steamId: int, appInfo:bool = True, freeGames: bool 
     data = data.json()["response"] # we must re-think this, this field cannot exist
 
     response = [
-        tuple(game.get(field, None) for field in fields) for game in data['games']
+        list(game.get(field, None) for field in fields) for game in data['games']
     ]
 
     return response
@@ -87,7 +87,7 @@ def GetFamilyGames(freeGames: bool = True):
         
         data = data.json()['response'] # we must re-think this, this field cannot exist
         response = [
-            tuple(game.get(field, None) for field in fields) for game in data['apps']
+            list(game.get(field, None) for field in fields) for game in data['apps']
         ]
         return response
     
@@ -109,7 +109,7 @@ def GetUserFriends(token: int, steamId: int):
     data = data.json()["friendslist"] # we must re-think this, this field cannot exist
 
     response = [
-        tuple(friend.get(field, None) for field in fields) for friend in data['friends']
+        list(friend.get(field, None) for field in fields) for friend in data['friends']
     ]
 
     return response

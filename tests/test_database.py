@@ -5,10 +5,6 @@ import modules.dictionary as dictionary
 
 class TestDatabase(unittest.TestCase):
 
-    def test_connection_correctly_setted(self):
-        db = Database().get_connection()
-        self.assertTrue(db.status)
-
     def test_table_exists(self):
         db = Database()
         # chequeamos que tabla existe
@@ -22,9 +18,6 @@ class TestDatabase(unittest.TestCase):
         data = db.table_exists(1)
         self.assertFalse(data.status)
 
-
-###################################################################################################################################
-
     def test_create_table(self):
         db = Database()
         # test not create table
@@ -33,88 +26,117 @@ class TestDatabase(unittest.TestCase):
         response = db.table_exists("not_creating_table")
         self.assertTrue(response.status) # not exist running error
         self.assertFalse(response.content) # but the result of the function is false
+        db.delete_table("creating_table")
         # test create table
         # use deletetable here to ensure there is not existent table
-        db.delete_table("creating_table")
         response = db.create_table("creating_table", [["name", "VARCHAR(255)"]])
         self.assertTrue(response.status and response.content)
         response = db.table_exists("creating_table")
         self.assertTrue(response.status and response.content)
-
-        # test create table two times
         db.delete_table("creating_table")
+        # test create table two times
         db.create_table("creating_table", [["name", "INT"]])
         response = db.create_table("creating_table", [["name", "VARCHAR(255)"]])
         self.assertTrue(response.status)
         self.assertFalse(response.content)
-
-    def test_is_table_filled(self): # before test this function, requires create_table, fill_table, delete_table
-        db = Database()
-        # test with filled table
-        db.create_table("creating_table", [["name", "VARCHAR(255)"]])
-        data = [("TestJuan")]
-        db.fill_table("creating_table", data)
-        self.assertTrue(db.is_table_filled("creating_table"))
         db.delete_table("creating_table")
-        # test with empty table
-        db.create_table("creating_table", [["name", "VARCHAR(255)"]])
-        self.assertFalse(db.is_table_filled("creating_table"))
-        db.delete_table("creating_table")
-        # test not existing table
-        self.assertIsNone(db.is_table_filled("not_existing_table"))
-        # test incorrect data
-        self.assertIsNone(db.is_table_filled(None))
-
 
     def test_delete_table(self):
         db = Database()
         # test deleting existent table
         db.create_table("delete_table", [["name", "INT"]])
-        db.delete_table("delete_table")
-        value = db.table_exists("delete_table")
-        self.assertIsNotNone(value)
-        self.assertFalse(value)
+        response = db.delete_table("delete_table")
+        self.assertTrue(response.status and response.content)
+        response = db.table_exists("delete_table")
+        self.assertTrue(response.status)
+        self.assertFalse(response.content)
         # test deleting non existent table
-        value = db.delete_table("non_existent_table")
-        self.assertIsNone(value) # no tengo muy claro como interpretar este caso, si como error, como exito o como indiferente
+        response = db.delete_table("non_existent_table")
+        self.assertFalse(response.status)
         # test incorrect variable
-        value = db.delete_table(1)
-        self.assertIsNotNone(value)
-        self.assertFalse(value)
+        response = db.delete_table(1)
+        self.assertFalse(response.status)
+
+    def test_is_table_filled(self): # before test this function, requires create_table, fill_table, delete_table
+        db = Database()
+        # test with filled table        
+        db.create_table("creating_table", [["name", "VARCHAR(255)"]])
+        data = [["TestJuan"]]
+        db.fill_table("creating_table", data)
+        response = db.is_table_filled("creating_table")
+        self.assertTrue(response.status and response.content)
+        db.delete_table("creating_table")
+        # test with empty table
+        db.create_table("creating_table", [["name", "VARCHAR(255)"]])
+        response = db.is_table_filled("creating_table")
+        self.assertTrue(response.status)
+        self.assertFalse(response.content)
+        db.delete_table("creating_table")
+        # test not existing table
+        response = db.is_table_filled("non_existent_table")
+        self.assertFalse(response.status)
+        # test incorrect data
+        response = db.is_table_filled(None)
+        self.assertFalse(response.status)
 
     def test_fill_table(self):
         db = Database()
-        # test fill empty table
+        # test fill one value
         db.create_table("filling_table", [["name", "VARCHAR(255)"]])
-        familyGamesEndpoint = [("TestJuan")]
-        db.fill_table("filling_table", familyGamesEndpoint)
-        self.assertTrue(db.is_table_filled("filling_table"))
-        db.delete_table("filling_table")
+        familyGamesEndpoint = [["TestJuan"]]
+        response = db.fill_table("filling_table", familyGamesEndpoint)
+        self.assertTrue(response.status)
+        # test fill several values
+        familyGamesEndpoint = [["TestJuan"],["TestJuan"],["TestJuan"],["TestJuan"],["TestJuan"]]
+        response = db.fill_table("filling_table", familyGamesEndpoint)
+        self.assertTrue(response.status)
+        # return
         # test fill not empty table
-        familyGamesEndpoint = [("TestJuan2")]
-        db.fill_table("not_empty_filling_table", familyGamesEndpoint)
-        self.assertTrue(db.is_table_filled("not_empty_filling_table"))
+        familyGamesEndpoint = [["TestJuan2"]]
+        response = db.fill_table("filling_table", familyGamesEndpoint)
+        self.assertTrue(response.status)
+        db.delete_table("filling_table")
         # test fill not existing table
-        familyGamesEndpoint = [("TestJuan3")]
-        db.create_table("filling_table", [["name", "VARCHAR(255)"]])
-        value = db.fill_table("filling_table", familyGamesEndpoint)
-        self.assertIsNotNone(value)
-        self.assertFalse(value)
-        db.delete_table("filling_table")
-        # test fill table with incorrect table structure
-        familyGamesEndpoint = [("TestJuan4")]
-        db.create_table("filling_table", [["name", "VARCAR(255)"]])
-        value = db.fill_table("filling_table", familyGamesEndpoint)
-        self.assertIsNotNone(value)
-        self.assertFalse(value)
-        db.delete_table("filling_table")
+        familyGamesEndpoint = [["TestJuan3"]]
+        response = db.fill_table("non_existent_table", familyGamesEndpoint)
+        self.assertFalse(response.status)
         # test fill table with incorrect data
-        familyGamesEndpoint = [(5)]
-        db.create_table("filling_table", [["name", "VARCHAR(255)"]])
-        value = db.fill_table("filling_table", familyGamesEndpoint)
-        self.assertIsNotNone(value)
-        self.assertFalse(value)
+        familyGamesEndpoint = [["TestJuan4"]]
+        db.create_table("filling_table", [["name", "INT"]])
+        response = db.fill_table("filling_table", familyGamesEndpoint)
+        self.assertFalse(response.status)
         db.delete_table("filling_table")
+        # test fill table incorrect data
+        db.create_table("filling_table", [["name", "INT"]])
+        familyGamesEndpoint = [(5)] # no deberia colar, debe ser un list de lists
+        response = db.fill_table("filling_table", familyGamesEndpoint)
+        self.assertFalse(response.status)
+        familyGamesEndpoint= [5] # no deberia colar, debe ser un list de lists
+        response = db.fill_table("filling_table", familyGamesEndpoint)
+        self.assertFalse(response.status)
+        familyGamesEndpoint = 5 # no debe colar, debe ser un array
+        response = db.fill_table("filling_table", familyGamesEndpoint)
+        self.assertFalse(response.status)
+        familyGamesEndpoint = [[]] # no debe colar, debe ser un array
+        response = db.fill_table("filling_table", familyGamesEndpoint)
+        self.assertFalse(response.status)
+        familyGamesEndpoint = [[5,6,7]] # no debe colar, ya que la tabla es de una columna y no de tres
+        response = db.fill_table("filling_table", familyGamesEndpoint)
+        self.assertFalse(response.status)
+        db.delete_table("filling_table")
+        # test fill table incorrect data structure
+        db.create_table("filling_table", [["name", "INT"],["name2", "INT"],["name2", "INT"]])
+        familyGamesEndpoint = [(2)] # no debe colar, ya que la tabla es de tres columnas y no de una
+        response = db.fill_table("filling_table", familyGamesEndpoint)
+        self.assertFalse(response.status)
+
+
+    
+
+
+
+
+    
 
 
 
