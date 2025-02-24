@@ -18,6 +18,7 @@ class Database:
     def table_exists(self, table_name):
         if not isinstance(table_name, str):
             raise Exception("Table name must be a string")
+        
         db = self.get_connection()
         if db:
             cursor = db.cursor()
@@ -136,6 +137,7 @@ class Database:
 
             # Ejecutar consulta
             cursor.execute(query)
+            response = cursor.fetchall()
             cursor.close()
             db.close()
-            return cursor.fetchall()
+            return response

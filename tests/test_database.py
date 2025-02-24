@@ -117,17 +117,83 @@ class TestDatabase(unittest.TestCase):
             db.fill_table("filling_table", familyGamesEndpoint)
         db.delete_table("filling_table")
         
-    # def test_select_from_table(self):
-    #     db = Database()
-    #     # test not existing table
-    #     with self.assertRaises(Exception):
-    #         db.select_from_table("non_existent_table")
-    #     # test with filled table        
-    #     db.create_table("creating_table", [["name", "VARCHAR(255)"], ["value", "INT"]])
-    #     data = [["TestSelectFromTb", 1], ["TestSelectFromTb", 1], ["airambo", 99], ["endpoints", 55]]
-    #     db.fill_table("creating_table", data)
-    #     print(db.select_from_table("creating_table"))
-    #     db.delete_table("creating_table")
+    def test_select_from_table(self):
+        db = Database()
+        db.delete_table("creating_table")
+
+        # Test: Table does not exist
+        with self.assertRaises(Exception):
+            db.select_from_table("non_existent_table")
+
+        # Test: Select all columns from a filled table
+        db.create_table("creating_table", [["name", "VARCHAR(255)"], ["value", "INT"]])
+        data = [["TestSelectFromTb", 1], ["TestSelectFromTb", 1], ["airambo", 99], ["endpoints", 55]]
+        db.fill_table("creating_table", data)
+        
+        response = db.select_from_table("creating_table")  # Should return tuples with all columns
+        self.assertIsInstance(response, list)
+        self.assertIsInstance(response[0], tuple)
+
+        # Test: Select with one column
+        response = db.select_from_table("creating_table", columns=["name"])
+        self.assertIsInstance(response, list)
+
+        # Test: Select with multiple columns
+        response = db.select_from_table("creating_table", columns=["value", "name"])
+        self.assertIsInstance(response, list)
+
+        # Test: Selecting a non-existent column should raise an exception
+        with self.assertRaises(Exception):
+            db.select_from_table("creating_table", columns=["invalid_column"])
+
+        # Test: Selecting with WHERE clause
+        response = db.select_from_table("creating_table", where_clause="name = 'airambo' AND id > 2")
+        self.assertIsInstance(response, list)
+
+        # Test: Invalid WHERE clause (empty string or invalid format)
+        with self.assertRaises(Exception):
+            db.select_from_table("creating_table", where_clause=[""])
+        with self.assertRaises(Exception):
+            db.select_from_table("creating_table", where_clause="invalid SQL syntax")
+
+        # Test: ORDER BY (ascending)
+        response = db.select_from_table("creating_table", order_by="value ASC")
+        self.assertIsInstance(response, list)
+        self.assertEqual(response[0][2], 1)  # First result should have the smallest value
+
+        # Test: ORDER BY (descending)
+        response = db.select_from_table("creating_table", order_by="value DESC")
+        self.assertIsInstance(response, list)
+        self.assertEqual(response[0][2], 99)  # First result should have the highest value
+
+        # Test: ORDER BY with non-existent column should raise an exception
+        with self.assertRaises(Exception):
+            db.select_from_table("creating_table", order_by="non_existent_column ASC")
+
+        # Test: LIMIT (should return the first 2 rows)
+        response = db.select_from_table("creating_table", limit=2)
+        self.assertEqual(len(response), 2)
+
+        # Test: LIMIT with ORDER BY (should return top 2 sorted results)
+        response = db.select_from_table("creating_table", order_by="value ASC", limit=2)
+        self.assertEqual(len(response), 2)
+        self.assertEqual(response[0][2], 1)  # Smallest value
+
+        # Test: WHERE + ORDER BY + LIMIT combined
+        response = db.select_from_table("creating_table", where_clause="name = 'TestSelectFromTb'", order_by="value DESC", limit=1)
+        self.assertEqual(len(response), 1)
+        self.assertEqual(response[0][1], "TestSelectFromTb")
+
+        # Test: LIMIT set to 0 should return an empty list
+        # response = db.select_from_table("creating_table", limit=0)
+        # self.assertEqual(response, [])
+
+        # Test: Negative LIMIT should raise an exception
+        with self.assertRaises(Exception):
+            db.select_from_table("creating_table", limit=-1)
+
+        # Cleanup
+        db.delete_table("creating_table")
 
 
 
