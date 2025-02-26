@@ -72,8 +72,7 @@ class Database:
                 success(f"Table '{table_name}' deleted")
                 cursor.close()
                 db.close()
-                return True
-                
+                return True            
 
     def fill_table(self, table_name, table_data):
         if not self.table_exists(table_name):
@@ -101,7 +100,6 @@ class Database:
             placeholders = ", ".join(["%s"] * len(columns_structure))
             sql = f"INSERT INTO `{table_name}` ({columns}) VALUES ({placeholders})"
             if(len(table_data)==1):
-                print(table_data)
                 cursor.execute(sql, table_data[0])
             else:
                 cursor.executemany(sql, table_data)

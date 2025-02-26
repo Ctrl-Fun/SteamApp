@@ -25,11 +25,10 @@ class Init():
         self.load_endpoints(database, TOKEN, BASE_PATH)
 
         # Get and Save all User Games Info
-        self.load_user_games(database, TOKEN, STEAM_ID)
+        # self.load_user_games(database, TOKEN, STEAM_ID)
 
         # Get and Save all User Friends Info
-        self.load_user_friends(database, TOKEN, STEAM_ID)
-
+        # self.load_user_friends(database, TOKEN, STEAM_ID)
 
 
         success("Data loaded successfully")
@@ -38,20 +37,24 @@ class Init():
     def load_endpoints(database : Database, TOKEN: str, BASE_PATH: str):
         try:
             table_name = "endpoints"
-            table_data = dictionary.Database['endpoints']
+            table_structure = dictionary.Database['endpoints']
             tableExist = database.table_exists(table_name)
-            if(tableExist):
-                database.create_table(table_name, table_data)
-            rows_count = database.is_table_filled(table_name)
-            endpoint_array = database.select_from_table('endpoints', ['url'], 'name = "GetSharedLibraryApps"')
-            if(rows_count):
+            # print(tableExist)
+            if(not tableExist):
+                # regular endpoints
+                database.create_table(table_name, table_structure)
                 table_content = endpoints.GetApiEndpoints(TOKEN, BASE_PATH)
                 database.fill_table(table_name, table_content)
-
-            if(not endpoint_array):
+                # external endpoint
                 familyGamesEndpoint = [["GetSharedLibraryApps","https://api.steampowered.com/IFamilyGroupsService/GetSharedLibraryApps/v1/"]]
                 database.fill_table(table_name, familyGamesEndpoint)
-                
+            else:
+                filled_table = database.is_table_filled(table_name)
+                if(not filled_table):
+                    table_content = endpoints.GetApiEndpoints(TOKEN, BASE_PATH)
+                    database.fill_table(table_name, table_content)
+                    familyGamesEndpoint = [["GetSharedLibraryApps","https://api.steampowered.com/IFamilyGroupsService/GetSharedLibraryApps/v1/"]]
+                    database.fill_table(table_name, familyGamesEndpoint)
             return ReturnData(status=True)
         except Exception as e:
             error(f"Error crítico: str({e})")
