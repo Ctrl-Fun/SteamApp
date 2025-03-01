@@ -16,13 +16,18 @@ jobs:
 
     - name: Setup environment variables
       run: |
-        echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
-        echo "DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
-        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
-        echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
+        echo "DB_USER=root" >> $GITHUB_ENV
+        echo "DB_NAME=test" >> $GITHUB_ENV
+        echo "DB_PASSWORD=root" >> $GITHUB_ENV
+        echo "DB_HOST=localhost" >> $GITHUB_ENV
         echo "TOKEN=${{ secrets.TOKEN }}" >> $GITHUB_ENV
         echo "BASE_PATH=${{ secrets.BASE_PATH }}" >> $GITHUB_ENV
         echo "STEAM_ID=${{ secrets.STEAM_ID }}" >> $GITHUB_ENV
+
+    - name: Setup Database
+      run: |
+        sudo /etc/init.d/mysql start
+        mysql -e 'CREATE DATABASE test;' -uroot -proot
 
     - name: Run tests
       run: | 
