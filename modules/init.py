@@ -25,21 +25,20 @@ class Init():
         self.load_endpoints(database, TOKEN, BASE_PATH)
 
         # Get and Save all User Games Info
-        # self.load_user_games(database, TOKEN, STEAM_ID)
+        self.load_user_games(database, TOKEN, STEAM_ID)
 
         # Get and Save all User Friends Info
-        # self.load_user_friends(database, TOKEN, STEAM_ID)
+        self.load_user_friends(database, TOKEN, STEAM_ID)
 
 
         success("Data loaded successfully")
 
-
+    @staticmethod
     def load_endpoints(database : Database, TOKEN: str, BASE_PATH: str):
         try:
             table_name = "endpoints"
             table_structure = dictionary.Database['endpoints']
             tableExist = database.table_exists(table_name)
-            # print(tableExist)
             if(not tableExist):
                 # regular endpoints
                 database.create_table(table_name, table_structure)
@@ -55,13 +54,12 @@ class Init():
                     database.fill_table(table_name, table_content)
                     familyGamesEndpoint = [["GetSharedLibraryApps","https://api.steampowered.com/IFamilyGroupsService/GetSharedLibraryApps/v1/"]]
                     database.fill_table(table_name, familyGamesEndpoint)
-            return ReturnData(status=True)
         except Exception as e:
             error(f"Error crítico: str({e})")
             sys.exit()
 
-
-    def load_user_games(self, database : Database, TOKEN: str, STEAM_ID: str):
+    @staticmethod
+    def load_user_games(database : Database, TOKEN: str, STEAM_ID: str):
         # table_content = endpoints.GetFamilyGames()
         table_content = None # Bypass family games, endpoint not official suported by steam
         if(table_content != None):
@@ -83,11 +81,12 @@ class Init():
                 database.create_table(table_name, table_data)
 
             rows_count = database.is_table_filled(table_name)
-            if(rows_count == 0):
+            if(not rows_count):
                 table_content = endpoints.GetUserGames(token=TOKEN,steamId=STEAM_ID)
                 database.fill_table(table_name, table_content)
 
-    def load_user_friends(self, database : Database, TOKEN: str, STEAM_ID: str):
+    @staticmethod
+    def load_user_friends(database : Database, TOKEN: str, STEAM_ID: str):
         table_name = "user_friends"
         table_data = dictionary.Database['user_friends']
         tableExist = database.table_exists(table_name)
@@ -95,6 +94,6 @@ class Init():
             database.create_table(table_name, table_data)
 
         rows_count = database.is_table_filled(table_name)
-        if(rows_count == 0):
+        if(not rows_count):
             table_content = endpoints.GetUserFriends(token=TOKEN,steamId=STEAM_ID)
             database.fill_table(table_name, table_content)
