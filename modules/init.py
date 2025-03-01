@@ -22,7 +22,7 @@ class Init():
         database=Database()
 
         # Get and Save All Endpoints Info
-        self.load_endpoints(database, TOKEN, BASE_PATH)
+        load_endpoints(database, TOKEN, BASE_PATH)
 
         # Get and Save all User Games Info
         self.load_user_games(database, TOKEN, STEAM_ID)
