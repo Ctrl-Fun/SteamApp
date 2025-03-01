@@ -139,8 +139,10 @@ def GetNewsForApp(appId: str, count:str = "3", maxLength:str = "300", format:str
 
 def GetPlayerSummaries(steamId: int):
     token = os.environ["TOKEN"]
-    endpoint_url =utils.getEndpoint("GetPlayerSummaries")
-    data = requests.get(f"{endpoint_url}?key={token}&steamids={steamId}")
+    # endpoint_url =utils.getEndpoint("GetPlayerSummaries")
+    database=Database()
+    endpoint_array = database.select_from_table('endpoints', ['url'], 'name = "GetPlayerSummaries"')
+    data = requests.get(f"{endpoint_array[0][0]}?key={token}&steamids={steamId}")
     if(not data.ok):
         error("Error getting user info")
         print(data)

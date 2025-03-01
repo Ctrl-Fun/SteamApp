@@ -30,7 +30,6 @@ class Init():
         # Get and Save all User Friends Info
         self.load_user_friends(database, TOKEN, STEAM_ID)
 
-
         success("Data loaded successfully")
 
     @staticmethod

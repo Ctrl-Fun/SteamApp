@@ -25,7 +25,6 @@ def user_friends():
 
     for friend in user_friends:
         friend_summaries = endpoints.GetPlayerSummaries(friend[0])
-        friend_name = friend_summaries['players'][0]['personaname']
+        friend_name = friend_summaries['players']['player'][0]['personaname']
         friend_since = datetime.fromtimestamp(friend[2], tz=timezone.utc).strftime('%Y-%m-%d')
-        # friend_since = datetime.utcfromtimestamp(friend[2]).strftime('%Y-%m-%d')
         print(f"{friend_name:<20} {friend[1]:<10} {friend_since:<10}")
